@@ -7,9 +7,8 @@ namespace Encry;
  */
 interface EncryInterface
 {
-
     /**
-     * 设置第三方对应的支付字段
+     * 设置第三方对应的支付字段  程序中需要在加密类处理数据，所以需要预留一个入口接收数据
      * @return $this
      */
     function setField($field);

@@ -39,7 +39,7 @@ class Pay extends Controller
 
     /**
      *  此支付的加密方式对应的加密类
-     * @var EncryInterface
+     * @var \Encry\EncryInterface
      */
     private $handel;
 
@@ -50,7 +50,8 @@ class Pay extends Controller
     public function __construct($payName)
     {
         $this->payName = $payName;
-        $this->field = $this->getField();
+        //  实例化的同时，将数据从数据库中获取
+        $this->getField();
     }
 
     /**
@@ -81,22 +82,30 @@ class Pay extends Controller
 
 
     /**
-     *  从数据库中取出第三方对应的键和相应的值
-     * @return array
+     * 从数据库中取出第三方对应的键和相应的值
+     * @return array|string
      */
     private function getField()
     {
+        if ($this->field) {
+            return $this->field;
+        }
+
         //  todo 从数据库中取出一系列的对应第三方字段 此处 demo 我直接假设写数据
-        return [
+        return $this->field = [
             'symbol' => '#',
             'encry_type' => 'md5',
+            'request_method' => 'get',
+            'rule' => 'sort',
+            'request_data' => '{}', // 参与请求的字段，这个是 json 格式
+            'request_type' => 'curl', // 请求支付的方式
         ];
         // 如果没有数据 抛出异常 应该是没有配置这个支付
     }
 
     /**
      * 获取支付加密方式对应的类
-     * @return bool|\Encry\Encry|\Encry\Md5|EncryInterface
+     * @return bool|\Encry\EncryInterface|\Encry\Md5|\Encry\Rsa
      */
     private function getHandelClass()
     {

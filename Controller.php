@@ -7,7 +7,7 @@ class Controller
      * 报错信息
      * @var string
      */
-    public $errMessage;
+    protected $errMessage;
 
 
     /**
@@ -19,6 +19,7 @@ class Controller
         if ($this->errMessage) {
             return $this->errMessage;
         }
+        var_dump($this->errMessage);
         return '没有错误信息';
     }
 }
