@@ -100,6 +100,7 @@ class Request extends Controller
      */
     public function pay()
     {
+
         if (!$this->validate()) {
             return false;
         }

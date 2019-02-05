@@ -1,6 +1,7 @@
 <?php
 
 define('BASEDIR', __DIR__);
+define('DEBUG', true);
 // 支付 demo
 spl_autoload_register(function ($class) {
     require BASEDIR . '/' . str_replace('\\', '/', $class) . '.php';

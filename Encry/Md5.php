@@ -13,7 +13,7 @@ class Md5 extends \Controller implements EncryInterface
      */
     const CONFIG = [
         'sql_type' => 1, // 在数据库中的数字代码
-        'symbol' => ['%', '#', '^','&'], // 使用什么符号拼接
+        'symbol' => ['%', '#', '^', '&'], // 使用什么符号拼接
         'request_method' => ['get', 'post'],
         'rule' => ['sort'],// 请求字段的拼接规则
     ];
@@ -60,19 +60,17 @@ class Md5 extends \Controller implements EncryInterface
 
         // 请求第三方支付
         // 获取整理后的请求第三方的数据
-        $requestType = $this->field['request_type']; // 假设 'curl'
         $this->getRequestDataByRule();
         // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
         $request = new \Request();
 
-        $request->setRequestMethod($this->field['request_method'])
+        $pay = $request->setRequestMethod($this->field['request_method'])
             ->setRequestData($this->requestData)
-            ->setRequestType($requestType)
+            ->setRequestType($this->field['request_type'])
             ->pay();
 
-        $pay = call_user_func([$request, $requestType]);
         if (!$pay) {
-            $this->errMessage = '请求支付失败，此处会返回第三方信息';
+            $this->errMessage = $request->errMessage;
             return false;
         }
 
@@ -143,6 +141,11 @@ class Md5 extends \Controller implements EncryInterface
      */
     private function getRequestData()
     {
+        // todo  测试环境下 默认数据就是数据库数据
+        if (DEBUG) {
+            return $this->requestData = $this->field;
+        }
+
         foreach ($this->field as $field_name => $pay_name) {
             // post 请求的 name 还是数据库字段名
             if (isset($_POST[$field_name])) {

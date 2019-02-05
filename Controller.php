@@ -19,6 +19,6 @@ class Controller
         if ($this->errMessage) {
             return $this->errMessage;
         }
-        return '没有错误信息';
+        return '没有填写错误信息';
     }
 }
