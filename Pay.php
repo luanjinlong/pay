@@ -117,6 +117,9 @@ class Pay extends Controller
             case 'rsa':
                 $this->handel = new \Encry\Rsa();
                 break;
+            default:
+                $this->errMessage = '没有对应的加密处理类';
+                return false;
         }
         return $this->handel;
     }

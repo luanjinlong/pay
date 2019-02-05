@@ -11,7 +11,7 @@ class Controller
 
 
     /**
-     * 虎哦去报错
+     * 获取报错
      * @return string
      */
     public function getErrMessage()
@@ -19,6 +19,6 @@ class Controller
         if ($this->errMessage) {
             return $this->errMessage;
         }
-        return '没有报错';
+        return '没有错误信息';
     }
 }
