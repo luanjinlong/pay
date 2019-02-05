@@ -96,7 +96,7 @@ class Pay extends Controller
 
     /**
      * 获取支付加密方式对应的类
-     * @return $this|bool
+     * @return bool|\Encry\Encry|\Encry\Md5|EncryInterface
      */
     private function getHandelClass()
     {
@@ -110,8 +110,15 @@ class Pay extends Controller
 //            return false;
 //        }
         // 入口 index.php 使用了 spl_autoload_register 这里会自动引入类文件
-        $this->handel = new Encry\Md5();
-        return $this;
+        switch ($this->encry) {
+            case 'md5':
+                $this->handel = new \Encry\Md5();
+                break;
+            case 'rsa':
+                $this->handel = new \Encry\Rsa();
+                break;
+        }
+        return $this->handel;
     }
 
 

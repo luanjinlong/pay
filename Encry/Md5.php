@@ -4,7 +4,7 @@ namespace Encry;
 
 /**
  * md5 加密方式的请求处理
- * Class Encry
+ * Class Md5
  */
 class Md5 extends \Controller implements EncryInterface
 {
