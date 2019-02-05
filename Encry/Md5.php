@@ -13,7 +13,7 @@ class Md5 extends \Controller implements EncryInterface
      */
     const CONFIG = [
         'sql_type' => 1, // 在数据库中的数字代码
-        'symbol' => ['%', '#', '^'], // 使用什么符号拼接
+        'symbol' => ['%', '#', '^','&'], // 使用什么符号拼接
         'request_method' => ['get', 'post'],
         'rule' => ['sort'],// 请求字段的拼接规则
     ];

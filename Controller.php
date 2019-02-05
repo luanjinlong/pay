@@ -19,7 +19,6 @@ class Controller
         if ($this->errMessage) {
             return $this->errMessage;
         }
-        var_dump($this->errMessage);
         return '没有错误信息';
     }
 }

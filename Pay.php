@@ -39,7 +39,7 @@ class Pay extends Controller
 
     /**
      *  此支付的加密方式对应的加密类
-     * @var \Encry\EncryInterface
+     * @var \Encry\EncryInterface|\Encry\Md5
      */
     private $handel;
 
@@ -74,6 +74,7 @@ class Pay extends Controller
         $result = $this->handel->setField($field)->pay();
 
         if (!$result) {
+            $this->errMessage = $this->handel->errMessage;
             return false;
         }
 
