@@ -7,7 +7,7 @@
 class Pay extends Controller
 {
     /**
-     *  加密方式的字段  这个是数据库的字段
+     * 加密方式的字段  这个是数据库的字段
      */
     const ENCRY_TYPE = 'encry_type';
 
