@@ -14,7 +14,7 @@ class Md5 extends \Controller implements EncryptInterface
     const CONFIG = [
         'sql_type' => 1, // 在数据库中的数字代码
         'symbol' => ['%', '#', '^', '&'], // 使用什么符号拼接
-        'rule' => ['sort'],// 请求字段的拼接规则
+        'rule' => ['k_sort'],// 请求字段的拼接规则
     ];
 
     /**
@@ -23,7 +23,7 @@ class Md5 extends \Controller implements EncryptInterface
     const ENCRYPT_FIELD = 'encrypt_field';
 
     /**
-     * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入json格式
+     * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入逗号分割的字符串
      */
     const REQUEST_FIELD = 'request_field';
 
@@ -113,7 +113,7 @@ class Md5 extends \Controller implements EncryptInterface
         }
 
         $payData = [];
-        $requestFields = json_decode($this->field[self::REQUEST_FIELD], true);
+        $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
 
         foreach ($this->field as $field_name => $pay_name) {
             // post 请求的 name 还是数据库字段名
@@ -123,7 +123,7 @@ class Md5 extends \Controller implements EncryptInterface
         }
 
         if (count($requestFields) != count($payData)) {
-            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有' . json_encode($payData);
+            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有' . $this->field[self::REQUEST_FIELD];
             return false;
         }
 
@@ -156,8 +156,8 @@ class Md5 extends \Controller implements EncryptInterface
                 return false;
             }
             switch ($payField['rule']) {
-                case 'sort':
-                    sort($payField);
+                case 'k_sort': // 按照键升序
+                    ksort($payField);
                     break;
 
             }
@@ -177,7 +177,7 @@ class Md5 extends \Controller implements EncryptInterface
             return false;
         }
         // todo  要通过加密规则获取加密数据
-        return [$encryptField => ''];
+        return [$encryptField => microtime()];
     }
 
 }

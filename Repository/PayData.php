@@ -64,8 +64,8 @@ class PayData extends \Controller
             'symbol' => '#',
             'encrypt_type' => 'md5',
             'request_method' => 'post',
-            'rule' => 'sort',
-            'request_data' => '{}', // 参与请求的字段，这个是 json 格式
+            'rule' => 'k_sort',
+            'request_data' => '{"re":"long","0":22}', // 参与请求的字段，逗号分隔的字符串
             'request_type' => 'curl', // 请求支付的方式
             'pay_money' => 'money',
             'encrypt_field' => 'encrypt', // 加密字段配置
