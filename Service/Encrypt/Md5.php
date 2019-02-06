@@ -1,6 +1,6 @@
 <?php
 
-namespace Encrypt;
+namespace Service\Encrypt;
 
 /**
  * md5 加密方式的请求处理

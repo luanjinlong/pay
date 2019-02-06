@@ -1,6 +1,6 @@
 <?php
 
-namespace Encrypt;
+namespace Service\Encrypt;
 /**
  * 加密类的接口
  * Interface EncryptInterface

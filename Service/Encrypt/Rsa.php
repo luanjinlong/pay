@@ -1,6 +1,6 @@
 <?php
 
-namespace Encrypt;
+namespace Service\Encrypt;
 
 /**
  * md5 加密方式的请求处理
@@ -33,25 +33,14 @@ class Rsa extends \Controller implements EncryptInterface
         return $this;
     }
 
+
     /**
-     * 请求支付
+     * 获取加密处理后的数据
      * @return bool|string
      */
-    public function pay()
+    public function getEncryptPayData()
     {
-        return true;
-
+        // TODO: Implement getEncryptPayData() method.
     }
-
-    public function notify()
-    {
-
-    }
-
-    public function sync()
-    {
-
-    }
-
 
 }

@@ -1,10 +1,11 @@
 <?php
 
+namespace Service;
 /**
  * 请求方式的类
  * Class Request
  */
-class Request extends Controller
+class Request extends \Controller
 {
 
     /**

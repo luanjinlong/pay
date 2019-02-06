@@ -3,6 +3,8 @@
 namespace Service;
 
 use Repository\PayData;
+use Service\Encrypt\Md5;
+use Service\Encrypt\Rsa;
 
 /**
  * 处理支付 这个相当于是 service 层  处理业务逻辑
@@ -37,7 +39,7 @@ class Pay extends \Controller
 
     /**
      *  此支付的加密方式对应的加密类
-     * @var \Encrypt\EncryptInterface|\Encrypt\Md5
+     * @var \Service\Encrypt\Md5|\Service\Encrypt\Rsa|\Service\Encrypt\EncryptInterface
      */
     private $encryptHandel;
 
@@ -112,7 +114,7 @@ class Pay extends \Controller
 
     /**
      * 获取支付加密方式对应的类
-     * @return bool|\Encrypt\EncryptInterface|\Encrypt\Md5|\Encrypt\Rsa
+     * @return bool|Encrypt\EncryptInterface|Md5|Rsa
      */
     private function getHandelClassByEncrypt()
     {
@@ -122,10 +124,10 @@ class Pay extends \Controller
 
         switch ($this->encrypt) {
             case 'md5':
-                $this->encryptHandel = new \Encrypt\Md5();
+                $this->encryptHandel = new Md5();
                 break;
             case 'rsa':
-                $this->encryptHandel = new \Encrypt\Rsa();
+                $this->encryptHandel = new Rsa();
                 break;
             default:
                 $this->errMessage = '没有对应的加密处理类';
