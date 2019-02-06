@@ -68,9 +68,7 @@ class Pay extends \Controller
         if (!$pay_data) {
             return false;
         }
-        echo '<pre>';
-        var_dump($pay_data);die;
-        // 获取请求方式
+        // 获取请求方法
         $request_method = $this->getPayDataClass()->getRequestMethod();
         // 请求方式
         $request_type = $this->getPayDataClass()->getRequestType();
@@ -84,6 +82,7 @@ class Pay extends \Controller
             ->setRequestData($pay_data)
             ->setRequestType($request_type)
             ->pay();
+
         if (!$pay) {
             $this->payFail();
             $this->errMessage = $this->getRequestClass()->getErrMessage();

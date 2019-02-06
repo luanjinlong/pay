@@ -10,6 +10,9 @@ spl_autoload_register(function ($class) {
     require BASEDIR . '/' . str_replace('\\', '/', $class) . '.php';
 });
 
+require 'Common/function.php';
+echo '<pre>';
+var_dump(config('field')['encrypt_rule'] );die;
 /**
  *  使用的支付名
  */
