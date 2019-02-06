@@ -15,12 +15,18 @@ class Md5 extends \Controller implements EncryptInterface
         'sql_type' => 1, // 在数据库中的数字代码
         'symbol' => ['%', '#', '^', '&'], // 使用什么符号拼接
         'rule' => ['k_sort'],// 请求字段的拼接规则
+        'encrypt_rule' => ['k_sort'], // 加密规则的配置
     ];
 
     /**
      *  数据库的加密字段-- 这个是数据表中的字段 也可以直接使用  但是写在这里方便调试
      */
     const ENCRYPT_FIELD = 'encrypt_field';
+
+    // 参与加密的字段
+    const ENCRYPT_DATA = 'encrypt_data';
+    // 参与加密规则的字段
+    const ENCRYPT_RULE = 'encrypt_rule';
 
     /**
      * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入逗号分割的字符串
@@ -109,24 +115,28 @@ class Md5 extends \Controller implements EncryptInterface
     {
         // todo  测试环境下 默认数据就是数据库数据
         if (DEBUG) {
-            return $this->field;
+            $_POST = $this->field;
         }
 
         $payData = [];
         $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
-
         foreach ($this->field as $field_name => $pay_name) {
             // post 请求的 name 还是数据库字段名
-            if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
-                $payData[$pay_name] = $_POST[$field_name];
+            if (DEBUG) {
+                if (in_array($pay_name, $requestFields)) {
+                    $payData[$pay_name] = $_POST[$field_name];
+                }
+            } else {
+                if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
+                    $payData[$pay_name] = $_POST[$field_name];
+                }
             }
         }
 
         if (count($requestFields) != count($payData)) {
-            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有' . $this->field[self::REQUEST_FIELD];
+            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
             return false;
         }
-
         return $payData;
     }
 
@@ -176,8 +186,46 @@ class Md5 extends \Controller implements EncryptInterface
             $this->errMessage = '加密字段没有配置';
             return false;
         }
+
+        $encryptData = $this->field[self::ENCRYPT_DATA];
+        if (!$encryptData) {
+            $this->errMessage = '参与加密字段没有配置';
+            return false;
+        }
+
+        if (!$this->isSupportEncryptRule()) {
+            return false;
+        }
+
+        switch ($this->field[self::ENCRYPT_RULE]) {
+            case 'k_sort': // 按照键升序
+                ksort($this->field);
+                break;
+        }
+
+
         // todo  要通过加密规则获取加密数据
         return [$encryptField => microtime()];
     }
 
+    /**
+     * 验证加密规则是否支持
+     * @return bool
+     */
+    private function isSupportEncryptRule()
+    {
+        $encryptRule = $this->field[self::ENCRYPT_RULE];
+
+        if (!$encryptRule) {
+            $this->errMessage = '参与加密规则的字段没有配置';
+            return false;
+        }
+
+        if (!in_array($encryptRule, self::CONFIG['encrypt_rule'])) {
+            $this->errMessage = '加密规则不支持';
+            return false;
+        }
+
+        return true;
+    }
 }

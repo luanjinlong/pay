@@ -65,12 +65,15 @@ class Pay extends \Controller
     {
         //  获取请求的最终字段
         $pay_data = $this->getPayData();
+        if (!$pay_data) {
+            return false;
+        }
         // 获取请求方式
         $request_method = $this->getPayDataClass()->getRequestMethod();
         // 请求方式
         $request_type = $this->getPayDataClass()->getRequestType();
 
-        if (!$pay_data || !$request_method || !$request_type) {
+        if (!$request_method || !$request_type) {
             $this->errMessage = $this->getPayDataClass()->getErrMessage();
             return false;
         }

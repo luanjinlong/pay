@@ -44,6 +44,7 @@ class PayData extends \Controller
     }
 
     /**
+     * todo  这个数据表其实是两部分内容  一部分是请求参数的字段  另一部分相当于是配置字段 比如加密规则，加密字段等
      * 从数据库中取出第三方对应的键和相应的值
      * @return array|string|boolean
      */
@@ -62,13 +63,16 @@ class PayData extends \Controller
 
         return $this->field = [
             'symbol' => '#',
-            'encrypt_type' => 'md5',
             'request_method' => 'post',
             'rule' => 'k_sort',
-            'request_data' => '{"re":"long","0":22}', // 参与请求的字段，逗号分隔的字符串
+            'request_field' => 'post,curl,money,encrypt', // 参与请求的字段，逗号分隔的字符串
             'request_type' => 'curl', // 请求支付的方式
             'pay_money' => 'money',
+
+            'encrypt_type' => 'md5', // 加密方式
+            'encrypt_data' => 'post,curl,money,encrypt', // 参与加密的字段，逗号分隔的字符串
             'encrypt_field' => 'encrypt', // 加密字段配置
+            'encrypt_rule' => 'k_sort', // 加密规则
         ];
         // 如果没有数据 抛出异常 应该是没有配置这个支付
     }
