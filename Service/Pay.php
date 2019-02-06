@@ -59,26 +59,30 @@ class Pay extends \Controller
     }
 
     /**
-     * 支付
+     * 支付中心
      */
     public function pay()
     {
         //  获取请求的最终字段
         $pay_data = $this->getPayData();
-        if (!$pay_data) {
+        // 获取请求方式
+        $request_method = $this->getPayDataClass()->getRequestMethod();
+        // 请求方式
+        $request_type = $this->getPayDataClass()->getRequestType();
+
+        if (!$pay_data || !$request_method || !$request_type) {
+            $this->errMessage = $this->getPayDataClass()->getErrMessage();
             return false;
         }
-
-//
-//        // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
-//        $request = new \Request();
-//
-//        $pay = $request->setRequestMethod($this->field['request_method'])
-//            ->setRequestData($this->requestData)
-//            ->setRequestType($this->field['request_type'])
-//            ->pay();
-
-
+        // 请求支付
+        $pay = $this->getRequestClass()->setRequestMethod($request_method)
+            ->setRequestData($pay_data)
+            ->setRequestType($request_type)
+            ->pay();
+        if (!$pay) {
+            $this->errMessage = $this->getRequestClass()->getErrMessage();
+            return false;
+        }
         return true;
     }
 
@@ -89,12 +93,11 @@ class Pay extends \Controller
     private function getPayData()
     {
         // 1.获取此支付对应的数据
-        $this->field = $this->getPayDataClass()->getFieldBtPayName($this->payName);
+        $this->field = $this->getPayDataClass()->setPayName($this->payName)->getFieldBtPayName();
         if (!$this->field) {
             $this->errMessage = '没有此支付方式对应的配置';
             return false;
         }
-
         // 2.获取加密对应的加密类，去处理数据
         if (!$this->encryptHandel) {
             if (!$this->getHandelClassByEncrypt()) {
@@ -174,6 +177,19 @@ class Pay extends \Controller
             return $payData;
         }
         return $payData = new PayData();
+    }
+
+    /**
+     * 获取支付数据类
+     * @return Request
+     */
+    private function getRequestClass()
+    {
+        static $request;
+        if ($request) {
+            return $request;
+        }
+        return $request = new Request();
     }
 
 }
