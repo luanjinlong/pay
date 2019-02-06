@@ -20,7 +20,6 @@ class Md5 extends BaseEncrypt implements EncryptInterface
             return false;
         }
 
-        // 请求第三方支付
         // 获取整理后的请求第三方的数据
         $requestData = $this->getRequestDataBySort();
         if (!$requestData) {
@@ -30,5 +29,58 @@ class Md5 extends BaseEncrypt implements EncryptInterface
         return $requestData;
     }
 
+    /**
+     * 对请求数据根据请求排序规则排序
+     * @return array|boolean
+     */
+    protected function getRequestDataBySort()
+    {
+        //  获取参与请求的字段
+        $payField = $this->getPayField();
+        if (!$payField) {
+            return false;
+        }
+
+        // 获取加密字段
+        $encrypt_field_str = $this->getEncryptField();
+        if (!$encrypt_field_str) {
+            return false;
+        }
+
+        // 合并加密字段
+        $payField = array_merge($payField, [$this->field[self::ENCRYPT_FIELD] => $this->encryptField($encrypt_field_str)]);
+
+        if (isset($this->field['rule']) && $this->field['rule']) {
+            if (!in_array($this->field['rule'], self::CONFIG['rule'])) {
+                $this->errMessage = '拼接数据的规则不存在';
+                return false;
+            }
+            switch ($this->field['rule']) {
+                case 'k_sort': // 按照键升序
+                    ksort($payField);
+                    break;
+
+            }
+        }
+        return $payField;
+    }
+
+    /**
+     * 加密数据
+     * @param $encrypt_field_str string
+     * @return string
+     */
+    private function encryptField($encrypt_field_str)
+    {
+        $result = false;
+        switch ($this->field[self::ENCRYPT_TYPE]) {
+            case 'md5':
+                $result = md5($encrypt_field_str);
+                break;
+            //  todo   有可能使用自己的加密规则
+
+        }
+        return $result;
+    }
 
 }

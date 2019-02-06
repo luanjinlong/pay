@@ -20,7 +20,7 @@ class BaseEncrypt extends \Controller
     ];
 
 
-     //  数据库的加密字段-- 这个是数据表中的字段 也可以直接使用  但是写在这里方便调试
+    //  数据库的加密字段-- 这个是数据表中的字段 也可以直接使用  但是写在这里方便调试
     const ENCRYPT_FIELD = 'encrypt_field';
     //  加密方式 md5 rsa
     const ENCRYPT_TYPE = 'encrypt_type';
@@ -40,7 +40,7 @@ class BaseEncrypt extends \Controller
      * 数据库原数据
      * @var array
      */
-    private $field;
+    protected $field;
 
     /**
      * 设置第三方对应的支付字段
@@ -51,27 +51,6 @@ class BaseEncrypt extends \Controller
     {
         $this->field = $field;
         return $this;
-    }
-
-    /**
-     * 获取加密处理后的数据
-     * @return bool|string
-     */
-    public function getEncryptPayData()
-    {
-        // 验证数据库字段
-        if (!$this->validateField()) {
-            return false;
-        }
-
-        // 请求第三方支付
-        // 获取整理后的请求第三方的数据
-        $requestData = $this->getRequestDataBySort();
-        if (!$requestData) {
-            return false;
-        }
-
-        return $requestData;
     }
 
     /**
@@ -111,43 +90,45 @@ class BaseEncrypt extends \Controller
     }
 
     /**
-     * 对请求数据根据请求排序规则排序
+     * 获取请求支付的键值对数据  原本是表字段对应的值，这一步整理成表字段值对应的POST值，因为表字段值才是第三方的请求字段
      * @return array|boolean
      */
-    protected function getRequestDataBySort()
+    protected function getPayField()
     {
-        //  获取参与请求的字段
-        $payField = $this->getPayField();
-        if (!$payField) {
-            return false;
+        static $payData;
+        if ($payData) {
+            return $payData;
+        }
+        // todo  测试环境下 默认数据就是数据库数据
+        if (DEBUG) {
+            $_POST = $this->field;
         }
 
-        // 获取加密字段
-        $encryptField = $this->getEncryptField();
-        if (!$encryptField) {
-            return false;
-        }
-        // 合并加密字段
-        $payField = array_merge($payField, $encryptField);
-
-        if (isset($this->field['rule']) && $this->field['rule']) {
-            if (!in_array($this->field['rule'], self::CONFIG['rule'])) {
-                $this->errMessage = '拼接数据的规则不存在';
-                return false;
-            }
-            switch ($this->field['rule']) {
-                case 'k_sort': // 按照键升序
-                    ksort($payField);
-                    break;
-
+        $payData = [];
+        $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
+        foreach ($this->field as $field_name => $pay_name) {
+            // post 请求的 name 还是数据库字段名
+            if (DEBUG) {
+                if (in_array($pay_name, $requestFields)) {
+                    $payData[$pay_name] = $_POST[$field_name];
+                }
+            } else {
+                if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
+                    $payData[$pay_name] = $_POST[$field_name];
+                }
             }
         }
-        return $payField;
+
+        if (count($requestFields) != count($payData)) {
+            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
+            return false;
+        }
+        return $payData;
     }
 
     /**
      * 获取加密后的加密字段键值对
-     * @return array|boolean
+     * @return  string|boolean
      */
     protected function getEncryptField()
     {
@@ -183,25 +164,7 @@ class BaseEncrypt extends \Controller
         $encrypt_field_str = str_replace('&', $this->field[self::ENCRYPT_SYMBOL], $encrypt_field_str);
 
         // todo  要通过加密规则获取加密数据
-        return [$this->field[self::ENCRYPT_FIELD] => $this->encryptField($encrypt_field_str)];
-    }
-
-    /**
-     * 加密数据
-     * @param $encrypt_field_str string
-     * @return string
-     */
-    private function encryptField($encrypt_field_str)
-    {
-        $result = '';
-        switch ($this->field[self::ENCRYPT_TYPE]) {
-            case 'md5':
-                $result = md5($encrypt_field_str);
-                break;
-            //  todo   有可能使用自己的加密规则
-
-        }
-        return $result;
+        return $encrypt_field_str;
     }
 
     /**
@@ -265,43 +228,6 @@ class BaseEncrypt extends \Controller
             return false;
         }
         return true;
-    }
-
-    /**
-     * 获取请求支付的键值对数据  原本是表字段对应的值，这一步整理成表字段值对应的POST值，因为表字段值才是第三方的请求字段
-     * @return array|boolean
-     */
-    private function getPayField()
-    {
-        static $payData;
-        if ($payData) {
-            return $payData;
-        }
-        // todo  测试环境下 默认数据就是数据库数据
-        if (DEBUG) {
-            $_POST = $this->field;
-        }
-
-        $payData = [];
-        $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
-        foreach ($this->field as $field_name => $pay_name) {
-            // post 请求的 name 还是数据库字段名
-            if (DEBUG) {
-                if (in_array($pay_name, $requestFields)) {
-                    $payData[$pay_name] = $_POST[$field_name];
-                }
-            } else {
-                if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
-                    $payData[$pay_name] = $_POST[$field_name];
-                }
-            }
-        }
-
-        if (count($requestFields) != count($payData)) {
-            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
-            return false;
-        }
-        return $payData;
     }
 
 }
