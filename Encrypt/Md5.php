@@ -22,12 +22,10 @@ class Md5 extends \Controller implements EncryptInterface
      */
     const ENCRYPT_FIELD = 'encrypt_field';
 
-
     /**
      * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入json格式
-     * @var array
      */
-    private $requestField;
+    const REQUEST_FIELD = 'request_field';
 
     /**
      * 数据库原数据
@@ -64,21 +62,8 @@ class Md5 extends \Controller implements EncryptInterface
             return false;
         }
 
-//        // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
-//        $request = new \Request();
-//
-//        $pay = $request->setRequestMethod($this->field['request_method'])
-//            ->setRequestData($this->requestData)
-//            ->setRequestType($this->field['request_type'])
-//            ->pay();
-//
-//        if (!$pay) {
-//            $this->errMessage = $request->errMessage;
-//            return false;
-//        }
         return true;
     }
-
 
     /**
      * todo  公共的数据在这里验证，但是不是必须的数据，就不要验证了
@@ -112,13 +97,13 @@ class Md5 extends \Controller implements EncryptInterface
             $this->errMessage = '拼接符号不符合需求';
             return false;
         }
-        
+
         return true;
     }
 
     /**
      * 获取请求支付的键值对数据  原本是表字段对应的值，这一步整理成表字段值对应的POST值，因为表字段值才是第三方的请求字段
-     * @return array
+     * @return array|boolean
      */
     private function getPayField()
     {
@@ -128,12 +113,20 @@ class Md5 extends \Controller implements EncryptInterface
         }
 
         $payData = [];
+        $requestFields = json_decode($this->field[self::REQUEST_FIELD], true);
+
         foreach ($this->field as $field_name => $pay_name) {
             // post 请求的 name 还是数据库字段名
-            if (isset($_POST[$field_name])) {
+            if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
                 $payData[$pay_name] = $_POST[$field_name];
             }
         }
+
+        if (count($requestFields) != count($payData)) {
+            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有' . json_encode($payData);
+            return false;
+        }
+
         return $payData;
     }
 
@@ -145,6 +138,10 @@ class Md5 extends \Controller implements EncryptInterface
     {
         //  获取参与请求的字段
         $payField = $this->getPayField();
+        if (!$payField) {
+            return false;
+        }
+
         // 获取加密字段
         $encryptField = $this->getEncryptField();
         if (!$encryptField) {

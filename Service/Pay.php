@@ -67,6 +67,16 @@ class Pay extends \Controller
             return false;
         }
 
+//
+//        // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
+//        $request = new \Request();
+//
+//        $pay = $request->setRequestMethod($this->field['request_method'])
+//            ->setRequestData($this->requestData)
+//            ->setRequestType($this->field['request_type'])
+//            ->pay();
+
+
         return true;
     }
 
