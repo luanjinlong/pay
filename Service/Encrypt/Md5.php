@@ -13,9 +13,10 @@ class Md5 extends \Controller implements EncryptInterface
      */
     const CONFIG = [
         'sql_type' => 1, // 在数据库中的数字代码
-        'symbol' => ['%', '#', '^', '&'], // 使用什么符号拼接
+        'symbol' => ['%', '#', '^', '&', '^'], // 使用什么符号拼接
         'rule' => ['k_sort'],// 请求字段的拼接规则
         'encrypt_rule' => ['k_sort'], // 加密规则的配置
+        'encrypt_symbol' => ['%', '#', '^', '&', '^'],  // 加密规则的配置
     ];
 
     /**
@@ -27,6 +28,8 @@ class Md5 extends \Controller implements EncryptInterface
     const ENCRYPT_DATA = 'encrypt_data';
     // 参与加密规则的字段
     const ENCRYPT_RULE = 'encrypt_rule';
+    // 加密拼接字段
+    const ENCRYPT_SYMBOL = 'encrypt_symbol';
 
     /**
      * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入逗号分割的字符串
@@ -113,6 +116,10 @@ class Md5 extends \Controller implements EncryptInterface
      */
     private function getPayField()
     {
+        static $payData;
+        if ($payData) {
+            return $payData;
+        }
         // todo  测试环境下 默认数据就是数据库数据
         if (DEBUG) {
             $_POST = $this->field;
@@ -160,12 +167,12 @@ class Md5 extends \Controller implements EncryptInterface
         // 合并加密字段
         $payField = array_merge($payField, $encryptField);
 
-        if (isset($payField['rule']) && $payField['rule']) {
-            if (!in_array($payField['rule'], self::CONFIG['rule'])) {
+        if (isset($this->field['rule']) && $this->field['rule']) {
+            if (!in_array($this->field['rule'], self::CONFIG['rule'])) {
                 $this->errMessage = '拼接数据的规则不存在';
                 return false;
             }
-            switch ($payField['rule']) {
+            switch ($this->field['rule']) {
                 case 'k_sort': // 按照键升序
                     ksort($payField);
                     break;
@@ -176,10 +183,10 @@ class Md5 extends \Controller implements EncryptInterface
     }
 
     /**
-     * 获取加密后的加密字段键值对
-     * @return array|boolean
+     * 验证加密字段
+     * @return bool
      */
-    private function getEncryptField()
+    private function validateEncryptField()
     {
         $encryptField = $this->field[self::ENCRYPT_FIELD];
         if (!$encryptField) {
@@ -192,20 +199,71 @@ class Md5 extends \Controller implements EncryptInterface
             $this->errMessage = '参与加密字段没有配置';
             return false;
         }
-
+        //  加密规则是否支持
         if (!$this->isSupportEncryptRule()) {
             return false;
         }
+        return true;
+    }
 
+    /**
+     * 获取加密后的加密字段键值对
+     * @return array|boolean
+     */
+    private function getEncryptField()
+    {
+        if (!$this->validateEncryptField()) {
+            return false;
+        }
+
+        $arr = explode(',', $this->field[self::ENCRYPT_DATA]);
+        $encryptData = [];
+        $payField = $this->getPayField();
+        if (!$payField) {
+            return false;
+        }
+        // 获取验证字段对应的值 键值对
+        foreach ($arr as $value) {
+            $encryptData[$value] = $payField[$value];
+        }
+
+        // 加密数据的排序规则
         switch ($this->field[self::ENCRYPT_RULE]) {
             case 'k_sort': // 按照键升序
-                ksort($this->field);
+                ksort($encryptData);
                 break;
         }
 
+        if (!$this->isSupportEncryptSymbol()) {
+            return false;
+        }
+
+        // 将加密数据拼接成字符串
+        $encrypt_field_str = http_build_query($payField);
+        // todo 不知道这种方式会不会有问题，http_build_query 函数默认是使用 & 符号拼接的 如果字符串中包含有这个函数就会出问题
+        $encrypt_field_str = str_replace('&', $this->field[self::ENCRYPT_SYMBOL], $encrypt_field_str);
 
         // todo  要通过加密规则获取加密数据
-        return [$encryptField => microtime()];
+        return [$this->field[self::ENCRYPT_FIELD] => md5($encrypt_field_str)];
+    }
+
+    /**
+     * 验证加密拼接字段是否支持
+     * @return bool
+     */
+    private function isSupportEncryptSymbol()
+    {
+        $encryptSymbol = $this->field[self::ENCRYPT_SYMBOL];
+        if (!$encryptSymbol) {
+            $this->errMessage = '参与加密拼接字段没有配置';
+            return false;
+        }
+
+        if (!in_array($encryptSymbol, self::CONFIG[self::ENCRYPT_SYMBOL])) {
+            $this->errMessage = '加密拼接字段不支持';
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -225,7 +283,7 @@ class Md5 extends \Controller implements EncryptInterface
             $this->errMessage = '加密规则不支持';
             return false;
         }
-
         return true;
     }
+
 }

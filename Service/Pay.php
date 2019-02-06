@@ -68,6 +68,8 @@ class Pay extends \Controller
         if (!$pay_data) {
             return false;
         }
+        echo '<pre>';
+        var_dump($pay_data);die;
         // 获取请求方式
         $request_method = $this->getPayDataClass()->getRequestMethod();
         // 请求方式
