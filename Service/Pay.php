@@ -127,7 +127,6 @@ class Pay extends \Controller
 
         // 3. 获取在加密类中处理后的最终数据
         $encryptPayData = $this->encryptHandel->setField($this->field)->getEncryptPayData();
-
         if (!$encryptPayData) {
             $this->errMessage = $this->encryptHandel->getErrMessage();
             return false;

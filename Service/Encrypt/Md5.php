@@ -62,7 +62,7 @@ class Md5 extends \Controller implements EncryptInterface
             return false;
         }
 
-        return true;
+        return $requestData;
     }
 
     /**
