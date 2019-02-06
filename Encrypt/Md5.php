@@ -1,12 +1,12 @@
 <?php
 
-namespace Encry;
+namespace Encrypt;
 
 /**
  * md5 加密方式的请求处理
  * Class Md5
  */
-class Md5 extends \Controller implements EncryInterface
+class Md5 extends \Controller implements EncryptInterface
 {
     /**
      * md5方式加密配置
@@ -25,7 +25,7 @@ class Md5 extends \Controller implements EncryInterface
     private $requestData = [];
 
     /**
-     * 加密拼接符号
+     * 数据库原数据
      * @var array
      */
     private $field;
@@ -45,7 +45,7 @@ class Md5 extends \Controller implements EncryInterface
      * 请求支付
      * @return bool|string
      */
-    public function pay()
+    public function getEncryptPayData()
     {
         // 获取字段
         if (!$this->field) {
@@ -130,7 +130,7 @@ class Md5 extends \Controller implements EncryInterface
      * 获取加密后的数据
      * @return string
      */
-    private function getEncryData()
+    private function getEncryptData()
     {
         return '';
     }

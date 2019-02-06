@@ -1,12 +1,12 @@
 <?php
 
-namespace Encry;
+namespace Encrypt;
 
 /**
  * md5 加密方式的请求处理
  * Class Rsa
  */
-class Rsa extends \Controller implements EncryInterface
+class Rsa extends \Controller implements EncryptInterface
 {
     /**
      * md5方式加密配置

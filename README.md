@@ -12,4 +12,4 @@
 ### 文件介绍
 - index.php 是入口文件 假设使用的支付名是 test_pay
 - Pay.php 算是支付中心的入口文件
-- EncryInterface.php 是加密类处理的接口
+- EncryptInterface.php 是加密类处理的接口
