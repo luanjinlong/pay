@@ -80,9 +80,29 @@ class Pay extends \Controller
             ->setRequestType($request_type)
             ->pay();
         if (!$pay) {
+            $this->payFail();
             $this->errMessage = $this->getRequestClass()->getErrMessage();
             return false;
         }
+        $this->paySuccess();
+        return true;
+    }
+
+    /**
+     * todo 支付失败处理
+     * @return bool
+     */
+    private function payFail()
+    {
+        return true;
+    }
+
+    /**
+     * todo 支付成功处理
+     * @return bool
+     */
+    private function paySuccess()
+    {
         return true;
     }
 
@@ -112,6 +132,8 @@ class Pay extends \Controller
             $this->errMessage = $this->encryptHandel->getErrMessage();
             return false;
         }
+
+        // todo 请求数据sql入库
         return $encryptPayData;
     }
 
