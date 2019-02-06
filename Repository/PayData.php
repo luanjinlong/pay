@@ -17,7 +17,6 @@ class PayData
      */
     public function getFieldBtPayName($payName)
     {
-
         //  todo 从数据库中取出一系列的对应第三方字段 此处 demo 我直接假设写数据
         return [
             'symbol' => '#',

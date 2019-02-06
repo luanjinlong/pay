@@ -13,7 +13,7 @@ class Pay extends \Controller
     /**
      * 加密方式的字段  这个是数据库的字段
      */
-    const Encrypt_TYPE = 'Encrypt_type';
+    const Encrypt_TYPE = 'encrypt_type';
 
     // 加密类型和配置
     const CONFIG_ENTRY_TYPE = [
@@ -62,7 +62,7 @@ class Pay extends \Controller
     public function pay()
     {
         // 1.获取此支付对应的数据
-        $this->getPayData()->getFieldBtPayName($this->payName);
+        $this->field = $this->getPayData()->getFieldBtPayName($this->payName);
         if (!$this->field) {
             $this->errMessage = '没有此支付方式对应的配置';
             return false;
@@ -76,7 +76,7 @@ class Pay extends \Controller
         }
 
         // 3. 在加密类中处理数据
-        $result = $this->encryptHandel->setField($this->field)->pay();
+        $result = $this->encryptHandel->setField($this->field)->getEncryptPayData();
 
         if (!$result) {
             $this->errMessage = $this->encryptHandel->errMessage;
