@@ -21,11 +21,12 @@ class PayData
         return [
             'symbol' => '#',
             'encrypt_type' => 'md5',
-            'request_method' => 'get',
+            'request_method' => ['get', 'post'],
             'rule' => 'sort',
             'request_data' => '{}', // 参与请求的字段，这个是 json 格式
             'request_type' => 'curl', // 请求支付的方式
             'pay_money' => 'money',
+            'encrypt_field' => 'encrypt', // 加密字段配置
         ];
         // 如果没有数据 抛出异常 应该是没有配置这个支付
     }

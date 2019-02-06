@@ -14,15 +14,20 @@ class Md5 extends \Controller implements EncryptInterface
     const CONFIG = [
         'sql_type' => 1, // 在数据库中的数字代码
         'symbol' => ['%', '#', '^', '&'], // 使用什么符号拼接
-        'request_method' => ['get', 'post'],
         'rule' => ['sort'],// 请求字段的拼接规则
     ];
 
     /**
-     * 请求的数据
+     *  数据库的加密字段-- 这个是数据表中的字段 也可以直接使用  但是写在这里方便调试
+     */
+    const ENCRYPT_FIELD = 'encrypt_field';
+
+
+    /**
+     * 请求支付的字段--在数据库中获取，这个字段是将加密字段存入json格式
      * @var array
      */
-    private $requestData = [];
+    private $requestField;
 
     /**
      * 数据库原数据
@@ -42,60 +47,51 @@ class Md5 extends \Controller implements EncryptInterface
     }
 
     /**
-     * 请求支付
+     * 获取加密处理后的数据
      * @return bool|string
      */
     public function getEncryptPayData()
     {
-        // 获取字段
-        if (!$this->field) {
-            $this->errMessage = '请传入第三方的支付字段';
-            return false;
-        }
-
-        // 验证字段
+        // 验证数据库字段
         if (!$this->validateField()) {
             return false;
         }
 
         // 请求第三方支付
         // 获取整理后的请求第三方的数据
-        $this->getRequestDataByRule();
-        // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
-        $request = new \Request();
-
-        $pay = $request->setRequestMethod($this->field['request_method'])
-            ->setRequestData($this->requestData)
-            ->setRequestType($this->field['request_type'])
-            ->pay();
-
-        if (!$pay) {
-            $this->errMessage = $request->errMessage;
+        $requestData = $this->getRequestDataBySort();
+        if (!$requestData) {
             return false;
         }
 
-
+//        // 请求支付的方式 curl 获取其他的之类  这个也在数据库字段里面
+//        $request = new \Request();
+//
+//        $pay = $request->setRequestMethod($this->field['request_method'])
+//            ->setRequestData($this->requestData)
+//            ->setRequestType($this->field['request_type'])
+//            ->pay();
+//
+//        if (!$pay) {
+//            $this->errMessage = $request->errMessage;
+//            return false;
+//        }
         return true;
     }
 
 
-    public function notify()
-    {
-
-    }
-
-    public function sync()
-    {
-
-    }
-
     /**
      * todo  公共的数据在这里验证，但是不是必须的数据，就不要验证了
+     * 验证数据，比如金额是否填写，金额有没有限制额度
+     * 必要的其他字段有没有填写
+     * 规则验证是否符合此类的 CONFIG 配置
+     *
      * 验证第三方支付字段
      * @return bool
      */
     private function validateField()
     {
+        // 获取数据库字段
         if (!$this->field) {
             $this->errMessage = '请传入第三方的支付字段';
             return false;
@@ -116,65 +112,75 @@ class Md5 extends \Controller implements EncryptInterface
             $this->errMessage = '拼接符号不符合需求';
             return false;
         }
-
-        // 验证请求方式
-        if (!in_array($this->field['request_method'], self::CONFIG['request_method'])) {
-            $this->errMessage = '请求方式不符合需求';
-            return false;
-        }
-
+        
         return true;
     }
 
     /**
-     * 获取加密后的数据
-     * @return string
-     */
-    private function getEncryptData()
-    {
-        return '';
-    }
-
-    /**
-     * 获取请求支付的键值对数据
+     * 获取请求支付的键值对数据  原本是表字段对应的值，这一步整理成表字段值对应的POST值，因为表字段值才是第三方的请求字段
      * @return array
      */
-    private function getRequestData()
+    private function getPayField()
     {
         // todo  测试环境下 默认数据就是数据库数据
         if (DEBUG) {
-            return $this->requestData = $this->field;
+            return $this->field;
         }
 
+        $payData = [];
         foreach ($this->field as $field_name => $pay_name) {
             // post 请求的 name 还是数据库字段名
             if (isset($_POST[$field_name])) {
-                $this->requestData[$pay_name] = $_POST[$field_name];
+                $payData[$pay_name] = $_POST[$field_name];
             }
         }
-        return $this->requestData;
+        return $payData;
     }
 
     /**
-     * 对请求数据根绝请求规则整理
+     * 对请求数据根据请求排序规则排序
      * @return array|boolean
      */
-    private function getRequestDataByRule()
+    private function getRequestDataBySort()
     {
-        $requestData = $this->getRequestData();
-        if (isset($requestData['rule']) && $requestData['rule']) {
-            if (!in_array($requestData['rule'], self::CONFIG['rule'])) {
+        //  获取参与请求的字段
+        $payField = $this->getPayField();
+        // 获取加密字段
+        $encryptField = $this->getEncryptField();
+        if (!$encryptField) {
+            return false;
+        }
+        // 合并加密字段
+        $payField = array_merge($payField, $encryptField);
+
+        if (isset($payField['rule']) && $payField['rule']) {
+            if (!in_array($payField['rule'], self::CONFIG['rule'])) {
                 $this->errMessage = '拼接数据的规则不存在';
                 return false;
             }
-            switch ($requestData['rule']) {
+            switch ($payField['rule']) {
                 case 'sort':
-                    sort($this->requestData);
+                    sort($payField);
                     break;
 
             }
         }
-        return $this->requestData;
+        return $payField;
+    }
+
+    /**
+     * 获取加密后的加密字段键值对
+     * @return array|boolean
+     */
+    private function getEncryptField()
+    {
+        $encryptField = $this->field[self::ENCRYPT_FIELD];
+        if (!$encryptField) {
+            $this->errMessage = '加密字段没有配置';
+            return false;
+        }
+        // todo  要通过加密规则获取加密数据
+        return [$encryptField => ''];
     }
 
 }

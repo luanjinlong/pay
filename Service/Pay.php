@@ -13,7 +13,7 @@ class Pay extends \Controller
     /**
      * 加密方式的字段  这个是数据库的字段
      */
-    const Encrypt_TYPE = 'encrypt_type';
+    const ENCRYPT_TYPE = 'encrypt_type';
 
     // 加密类型和配置
     const CONFIG_ENTRY_TYPE = [
@@ -61,8 +61,23 @@ class Pay extends \Controller
      */
     public function pay()
     {
+        //  获取请求的最终字段
+        $pay_data = $this->getPayData();
+        if (!$pay_data) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取请求支付的最终数据
+     * @return bool|string
+     */
+    private function getPayData()
+    {
         // 1.获取此支付对应的数据
-        $this->field = $this->getPayData()->getFieldBtPayName($this->payName);
+        $this->field = $this->getPayDataClass()->getFieldBtPayName($this->payName);
         if (!$this->field) {
             $this->errMessage = '没有此支付方式对应的配置';
             return false;
@@ -75,15 +90,14 @@ class Pay extends \Controller
             }
         }
 
-        // 3. 在加密类中处理数据
-        $result = $this->encryptHandel->setField($this->field)->getEncryptPayData();
+        // 3. 获取在加密类中处理后的最终数据
+        $encryptPayData = $this->encryptHandel->setField($this->field)->getEncryptPayData();
 
-        if (!$result) {
-            $this->errMessage = $this->encryptHandel->errMessage;
+        if (!$encryptPayData) {
+            $this->errMessage = $this->encryptHandel->getErrMessage();
             return false;
         }
-
-        return true;
+        return $encryptPayData;
     }
 
     /**
@@ -95,13 +109,7 @@ class Pay extends \Controller
         if (!$this->isSupportEncrypt()) {
             return false;
         }
-//        // 加载相应的加密类文件  并返回实例化
-//        $file = $this->encrypt . '.php';
-//        if (!file_exists($file)) {
-//            $this->errMessage = '此支付方式对应的加密文件不存在';
-//            return false;
-//        }
-        // 入口 index.php 使用了 spl_autoload_register 这里会自动引入类文件
+
         switch ($this->encrypt) {
             case 'md5':
                 $this->encryptHandel = new \Encrypt\Md5();
@@ -125,7 +133,7 @@ class Pay extends \Controller
         if ($this->encrypt) {
             return $this->encrypt;
         }
-        return $this->encrypt = $this->field[self::Encrypt_TYPE];
+        return $this->encrypt = $this->field[self::ENCRYPT_TYPE];
     }
 
     /**
@@ -147,7 +155,7 @@ class Pay extends \Controller
      * 获取支付数据类
      * @return PayData
      */
-    private function getPayData()
+    private function getPayDataClass()
     {
         static $payData;
         if ($payData) {
