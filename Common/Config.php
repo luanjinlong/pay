@@ -30,6 +30,22 @@ class Config implements \ArrayAccess
     }
 
     /**
+     * 获取配置文件的数据
+     * @param bool $file_name
+     * @return array
+     */
+    public function getConfigs($file_name = false)
+    {
+        if (isset($file_name)) {
+            if (!isset($this->configs[$file_name])) {
+                return [];
+            }
+            return $this->configs[$file_name];
+        }
+        return $this->configs;
+    }
+
+    /**
      * 获取数组的 $key
      * @param mixed $key
      * @return mixed

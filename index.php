@@ -5,6 +5,8 @@
  */
 define('BASEDIR', __DIR__); // 项目根路径
 define('DEBUG', true); // 调试模式
+
+
 // 支付 demo
 spl_autoload_register(function ($class) {
     require BASEDIR . '/' . str_replace('\\', '/', $class) . '.php';

@@ -8,4 +8,5 @@ return [
     'rule' => ['k_sort'],// 请求字段的拼接规则
     'encrypt_rule' => ['k_sort'], // 加密规则的配置
     'encrypt_symbol' => ['%', '#', '^', '&', '^'],  // 加密规则的配置
+    'test' => ['name'=>'long']
 ];

@@ -2,21 +2,29 @@
 
 
 if (!function_exists('config')) {
-    function config($path)
+    /**
+     * 获取配置
+     * @param $key
+     * @return array
+     * @throws Exception
+     */
+    function config($key)
     {
-        //  todo . 语法的现在还不知道怎么做
-        if (strpos($path, '.') !== 0) {
-            $arr = explode('.', $path);
-            $file_name = $arr[0];
-            $config = new \Common\Config($file_name);
-
-            $key = array_shift($arr);
-            static $new = [];
-            while ($arr) {
-                $key = array_shift($arr);
-                $config[$key];
-            }
+        if (strpos($key, '.') === false) {
+            // 直接返回整个文件的配置
+            $cofnig = new \Common\Config($key);
+            return $cofnig->getConfigs($key);
         }
-        return new \Common\Config($path);
+
+        $arr = explode('.', $key);
+        // 数组的第一个键就是文件名
+        $file_name = array_shift($arr);
+        $config = new \Common\Config($file_name);
+        $config_data = $config->getConfigs($file_name);
+
+        foreach ($arr as $segment) {
+            $config_data = $config_data[$segment];
+        }
+        return $config_data;
     }
 }
