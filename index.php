@@ -5,6 +5,11 @@
  */
 define('BASEDIR', __DIR__); // 项目根路径
 define('DEBUG', true); // 调试模式
+error_reporting(0);
+require BASEDIR . '/vendor/autoload.php';
+$whoops = new \Whoops\Run;
+$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+$whoops->register();
 
 
 // 支付 demo

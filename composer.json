@@ -1,4 +1,5 @@
 {
     "require": {
+        "filp/whoops": "^2.3"
     }
 }
