@@ -18,6 +18,12 @@ spl_autoload_register(function ($class) {
 });
 
 require 'Common/function.php';
+//
+//$logger = new \Monolog\Logger('test');
+//$logger->pushHandler(new \Monolog\Handler\StreamHandler(BASEDIR . '/storage/logs/test.log', \Monolog\Logger::DEBUG));
+//$logger->pushHandler(new \Monolog\Handler\FirePHPHandler());
+//$logger->info(2);
+
 
 /**
  *  使用的支付名
