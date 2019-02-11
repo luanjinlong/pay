@@ -48,7 +48,7 @@ class PayData extends \Controller
      * 从数据库中取出第三方对应的键和相应的值
      * @return array|string|boolean
      */
-    public function getFieldByPayName()
+    public function getFieldBtPayName()
     {
         //  todo 从数据库中取出一系列的对应第三方字段 此处 demo 我直接假设写数据
 
@@ -84,7 +84,7 @@ class PayData extends \Controller
      */
     public function getRequestMethod()
     {
-        $this->setPayName($this->pay_name)->getFieldByPayName();
+        $this->setPayName($this->pay_name)->getFieldBtPayName();
         if (!$this->field) {
             return false;
         }
@@ -97,7 +97,7 @@ class PayData extends \Controller
      */
     public function getRequestType()
     {
-        $this->setPayName($this->pay_name)->getFieldByPayName();
+        $this->setPayName($this->pay_name)->getFieldBtPayName();
         if (!$this->field) {
             return false;
         }
