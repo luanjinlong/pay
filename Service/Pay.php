@@ -217,6 +217,9 @@ class Pay extends \Controller
             case 'rsa':
                 $this->encryptHandel = new Rsa();
                 break;
+            case 'file': // 第三方自定义的加密规则
+                break;
+
             default:
                 $this->errMessage = '没有对应的加密处理类';
                 return false;
