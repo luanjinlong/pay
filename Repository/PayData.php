@@ -16,11 +16,6 @@ class PayData extends \Controller
     const REQUEST_METHOD = 'request_method';
 
     /**
-     *  支付方式 curl
-     */
-    const REQUEST_TYPE = 'request_type';
-
-    /**
      * 数据库字段
      * @var array
      */
@@ -65,10 +60,8 @@ class PayData extends \Controller
             'symbol' => '#',
             'request_method' => 'post',
             'rule' => 'k_sort',
-            'request_field' => 'post,curl,money,encrypt', // 参与请求的字段，逗号分隔的字符串
-            'request_type' => 'curl', // 请求支付的方式
+            'request_field' => 'post,money,encrypt', // 参与请求的字段，逗号分隔的字符串
             'pay_money' => 'money',
-
             'encrypt_type' => 'md5', // 加密方式
             'encrypt_data' => 'post,curl,money,encrypt', // 参与加密的字段，逗号分隔的字符串
             'encrypt_field' => 'encrypt', // 加密字段配置
@@ -89,19 +82,6 @@ class PayData extends \Controller
             return false;
         }
         return $this->field[self::REQUEST_METHOD];
-    }
-
-    /**
-     * 获取支付方式 curl
-     * @return string|boolean
-     */
-    public function getRequestType()
-    {
-        $this->setPayName($this->pay_name)->getFieldBtPayName();
-        if (!$this->field) {
-            return false;
-        }
-        return $this->field[self::REQUEST_TYPE];
     }
 
 }

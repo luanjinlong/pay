@@ -28,3 +28,17 @@ if (!function_exists('config')) {
         return $config_data;
     }
 }
+
+if (!function_exists('log')) {
+
+    /**
+     * @param $name
+     * @param string $level
+     * @return \Common\Log
+     * @throws Exception
+     */
+    function log($name, $level = 'WARNING')
+    {
+        return new \Common\Log($name, $level);
+    }
+}

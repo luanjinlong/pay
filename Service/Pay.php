@@ -2,6 +2,10 @@
 
 namespace Service;
 
+use Common\Log;
+use GuzzleHttp\Client;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Repository\PayData;
 use Service\Encrypt\Md5;
 use Service\Encrypt\Rsa;
@@ -17,6 +21,13 @@ class Pay extends \Controller
      */
     const ENCRYPT_TYPE = 'encrypt_type';
 
+    /**
+     * 请求方式的配置信息
+     */
+    const REQUEST_METHOD = [
+        'get', 'post'
+    ];
+
     // 加密类型和配置
     const CONFIG_ENTRY_TYPE = [
         // md5 加密配置
@@ -24,6 +35,12 @@ class Pay extends \Controller
         // rsa 加密配置
         'rsa' => 2, // 在数据库中的数字代码
     ];
+
+    /**
+     * 请求方式
+     * @var string
+     */
+    private $request_method = 'GET';
 
     /**
      * 加密方式
@@ -60,6 +77,8 @@ class Pay extends \Controller
 
     /**
      * 支付中心
+     * @return bool
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function pay()
     {
@@ -69,26 +88,111 @@ class Pay extends \Controller
             return false;
         }
         // 获取请求方法
-        $request_method = $this->getPayDataClass()->getRequestMethod();
-        // 请求方式
-        $request_type = $this->getPayDataClass()->getRequestType();
 
-        if (!$request_method || !$request_type) {
-            $this->errMessage = $this->getPayDataClass()->getErrMessage();
+        $validate = $this->validateRequestData();
+        if (!$validate) {
             return false;
         }
+
         // 请求支付
-        $pay = $this->getRequestClass()->setRequestMethod($request_method)
-            ->setRequestData($pay_data)
-            ->setRequestType($request_type)
-            ->pay();
+        $pay = $this->request();
 
         if (!$pay) {
             $this->payFail();
-            $this->errMessage = $this->getRequestClass()->getErrMessage();
             return false;
         }
         $this->paySuccess();
+        return true;
+    }
+
+    /**
+     * @return Client
+     */
+    private function getGuzzle()
+    {
+        static $client;
+        if ($client) {
+            return $client;
+        }
+        return $client = new Client();
+    }
+
+    /**
+     * 请求支付
+     * @return bool
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function request()
+    {
+        $client = $this->getGuzzle();
+        $response = $client->request(strtoupper($this->request_method), $this->getRequestUrl(), []);
+        if ($response->getStatusCode() == 200) {
+            return true;
+        } else {
+            $this->errMessage = $response->getBody()->getContents();
+            return false;
+        }
+    }
+
+    /**
+     * 获取请求的 url
+     * @return string
+     */
+    private function getRequestUrl()
+    {
+//        return 'http://httpbin.org';
+        return 'http://homestead.test';
+    }
+
+    /**
+     * 验证请求信息
+     * @return bool
+     */
+    private function validateRequestData()
+    {
+//        // todo  测试环境下 默认数据就是数据库数据
+//        if (DEBUG) {
+//            $_POST = $this->field;
+//        }
+//
+//        $payData = [];
+//        $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
+//        foreach ($this->field as $field_name => $pay_name) {
+//            // post 请求的 name 还是数据库字段名
+//            if (DEBUG) {
+//                if (in_array($pay_name, $requestFields)) {
+//                    $payData[$pay_name] = $_POST[$field_name];
+//                }
+//            } else {
+//                if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
+//                    $payData[$pay_name] = $_POST[$field_name];
+//                }
+//            }
+//        }
+//
+//        if (count($requestFields) != count($payData)) {
+//            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
+//            return false;
+//        }
+        return true;
+    }
+
+
+    /**
+     * 请求方法是否符合需求
+     * @return bool
+     */
+    private function isSupportRequestMethod()
+    {
+        if (!$this->request_method) {
+            $this->errMessage = '请传入请求方法';
+            return false;
+        }
+
+        if (!in_array($this->request_method, self::REQUEST_METHOD)) {
+            $this->errMessage = '请求方法不符合需求';
+            return false;
+        }
         return true;
     }
 
@@ -202,19 +306,6 @@ class Pay extends \Controller
             return $payData;
         }
         return $payData = new PayData();
-    }
-
-    /**
-     * 获取支付数据类
-     * @return Request
-     */
-    private function getRequestClass()
-    {
-        static $request;
-        if ($request) {
-            return $request;
-        }
-        return $request = new Request();
     }
 
 }
