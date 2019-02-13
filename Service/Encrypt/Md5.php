@@ -48,7 +48,7 @@ class Md5 extends BaseEncrypt implements EncryptInterface
         }
 
         // 合并加密字段
-        $payField = array_merge($payField, [$this->field[self::ENCRYPT_FIELD] => $this->encryptField($encrypt_field_str)]);
+        $payField = array_merge($payField, [$this->field[self::ENCRYPT_FIELD] => md5($encrypt_field_str)]);
 
         if (isset($this->field['rule']) && $this->field['rule']) {
             if (!in_array($this->field['rule'], self::CONFIG['rule'])) {
@@ -65,22 +65,5 @@ class Md5 extends BaseEncrypt implements EncryptInterface
         return $payField;
     }
 
-    /**
-     * 加密数据
-     * @param $encrypt_field_str string
-     * @return string
-     */
-    private function encryptField($encrypt_field_str)
-    {
-        $result = false;
-        switch ($this->field[self::ENCRYPT_TYPE]) {
-            case 'md5':
-                $result = md5($encrypt_field_str);
-                break;
-            //  todo   有可能使用自己的加密规则
-
-        }
-        return $result;
-    }
 
 }
