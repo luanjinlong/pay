@@ -4,6 +4,7 @@ namespace Service;
 
 use GuzzleHttp\Client;
 use Repository\PayData;
+use Service\Encrypt\File;
 use Service\Encrypt\Md5;
 use Service\Encrypt\Rsa;
 
@@ -218,6 +219,7 @@ class Pay extends \Controller
                 $this->encryptHandel = new Rsa();
                 break;
             case 'file': // 第三方自定义的加密规则
+                $this->encryptHandel = new File();
                 break;
 
             default:
