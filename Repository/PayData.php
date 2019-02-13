@@ -22,28 +22,12 @@ class PayData extends \Controller
     private $field;
 
     /**
-     * 支付名
-     * @var static
-     */
-    private $pay_name;
-
-    /**
-     * 设置支付名
-     * @param $pay_name
-     * @return $this
-     */
-    public function setPayName($pay_name)
-    {
-        $this->pay_name = $pay_name;
-        return $this;
-    }
-
-    /**
      * todo  这个数据表其实是两部分内容  一部分是请求参数的字段  另一部分相当于是配置字段 比如加密规则，加密字段等
      * 从数据库中取出第三方对应的键和相应的值
+     * @param $payName
      * @return array|string|boolean
      */
-    public function getFieldBtPayName()
+    public function getFieldBtPayName($payName)
     {
         //  todo 从数据库中取出一系列的对应第三方字段 此处 demo 我直接假设写数据
 
@@ -51,16 +35,20 @@ class PayData extends \Controller
             return $this->field;
         }
 
-        if (!$this->pay_name) {
+        if (!$payName) {
             $this->errMessage = '请传入支付名';
             return false;
         }
 
         return $this->field = [
+            'pay_name' => 'test', //支付名称
             'symbol' => '#',
             'request_method' => 'post',
             'rule' => 'k_sort',
             'request_field' => 'post,money,encrypt', // 参与请求的字段，逗号分隔的字符串
+            'request_url' => 'http://www.baidu.com', //请求的地址
+            'async_url' => '', //异步回掉地址
+            'callback_url' => '', //同步回掉地址
             'pay_money' => 'money',
             'encrypt_type' => 'md5', // 加密方式
             'encrypt_data' => 'post,curl,money,encrypt', // 参与加密的字段，逗号分隔的字符串
@@ -73,11 +61,12 @@ class PayData extends \Controller
 
     /**
      * 获取支付方法 get|post
+     * @param $payName
      * @return string|boolean
      */
-    public function getRequestMethod()
+    public function getRequestMethod($payName)
     {
-        $this->setPayName($this->pay_name)->getFieldBtPayName();
+        $this->getFieldBtPayName($payName);
         if (!$this->field) {
             return false;
         }

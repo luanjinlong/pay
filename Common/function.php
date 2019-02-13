@@ -41,3 +41,37 @@ if (!function_exists('logger')) {
         return new \Common\Log($name);
     }
 }
+
+if (!function_exists('payLogger')) {
+
+    /**
+     * 支付过程出现的报错
+     * @param $name
+     * @param $message
+     * @param $pay_name
+     * @param $err_message
+     * @throws Exception
+     */
+    function payLogger($name, $message, $pay_name, $err_message = [])
+    {
+        return logger($name)->debug($message, [
+            'time' => date('Y-m-d H:i:s'),
+            'pay_name' => $pay_name,
+            'err_message' => $err_message
+        ]);
+    }
+}
+
+if (!function_exists('throwError')) {
+    /**
+     * @param $message
+     * @throws Exception
+     */
+    function throwError($message)
+    {
+        if (DEBUG) {
+            throw new Exception($message);
+        }
+        throw new Exception('网络异常，请联系客服,异常代码' . time());
+    }
+}

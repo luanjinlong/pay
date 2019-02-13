@@ -2,10 +2,7 @@
 
 namespace Service;
 
-use Common\Log;
 use GuzzleHttp\Client;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use Repository\PayData;
 use Service\Encrypt\Md5;
 use Service\Encrypt\Rsa;
@@ -17,10 +14,29 @@ use Service\Encrypt\Rsa;
 class Pay extends \Controller
 {
     /**
+     *  支付字符按
+     */
+    const PAY_NAME = 'pay_name';
+
+    /**
      * 加密方式的字段  这个是数据库的字段
      */
     const ENCRYPT_TYPE = 'encrypt_type';
 
+    /**
+     *  支付请求地址 的字段
+     */
+    const REQUEST_URL = 'request_url';
+
+    /**
+     *  异步回掉地址 的字段
+     */
+    const ASYNC_URL = 'async_url';
+
+    /**
+     * 同步回掉 的字段
+     */
+    const CALLBACK_URL = 'callback_url';
     /**
      * 请求方式的配置信息
      */
@@ -49,12 +65,6 @@ class Pay extends \Controller
     private $encrypt;
 
     /**
-     * 支付名
-     * @var string
-     */
-    private $payName;
-
-    /**
      *  此支付的加密方式对应的加密类
      * @var \Service\Encrypt\Md5|\Service\Encrypt\Rsa|\Service\Encrypt\EncryptInterface
      */
@@ -67,12 +77,17 @@ class Pay extends \Controller
     private $field;
 
     /**
-     * DealMd5 constructor.
+     * Pay constructor.
      * @param $payName
+     * @throws \Exception
      */
     public function __construct($payName)
     {
-        $this->payName = $payName;
+        // 1.获取此支付对应的数据
+        $this->field = $this->getPayDataClass()->getFieldBtPayName($payName);
+        if (!$this->field) {
+            throw new \Exception($this->getPayDataClass()->getErrMessage());
+        }
     }
 
     /**
@@ -135,13 +150,18 @@ class Pay extends \Controller
     }
 
     /**
-     * 获取请求的 url
+     *  获取请求的 url
      * @return string
+     * @throws \Exception
      */
     private function getRequestUrl()
     {
-//        return 'http://httpbin.org';
-        return 'http://homestead.test';
+        if (!$this->field[self::REQUEST_URL]) {
+            $message = '没有配置支付名';
+            payLogger($this->field[self::PAY_NAME], $message, $this->field[self::PAY_NAME]);
+            throwError($message);
+        }
+        return $this->field[self::REQUEST_URL];
     }
 
     /**
@@ -220,12 +240,7 @@ class Pay extends \Controller
      */
     private function getPayData()
     {
-        // 1.获取此支付对应的数据
-        $this->field = $this->getPayDataClass()->setPayName($this->payName)->getFieldBtPayName();
-        if (!$this->field) {
-            $this->errMessage = '没有此支付方式对应的配置';
-            return false;
-        }
+
         // 2.获取加密对应的加密类，去处理数据
         if (!$this->encryptHandel) {
             if (!$this->getHandelClassByEncrypt()) {
