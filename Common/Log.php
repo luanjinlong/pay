@@ -2,9 +2,11 @@
 
 namespace Common;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 /**
  * Class Log
- * @property info
  * @package Common
  */
 class Log
@@ -25,29 +27,27 @@ class Log
     /**
      * Log constructor.
      * @param $name
-     * @param string $level
      * @throws \Exception
      */
-    public function __construct($name, $level = 'WARNING')
+    public function __construct($name)
     {
-        $this->logger = $this->getLog($name, $level);
+        $this->logger = $this->getLog($name);
     }
 
     /**
      * 获取某个文件的 LOG 日志类
      * @param $name
-     * @param $level  string 报错级别
      * @return mixed
      * @throws \Exception
      */
-    private function getLog($name, $level)
+    private function getLog($name)
     {
         if (in_array($name, $this->log_arr)) {
             return $this->log_arr[$name];
         }
+
         $this->log_arr[$name] = new \Monolog\Logger($name);
-        dd($this->log_arr[$name]);
-        $this->log_arr[$name]->pushHandler(new StreamHandler(BASEDIR . '/../storage/logs/' . $name . 'log', \Monolog\Logger::$level));
+        $this->log_arr[$name]->pushHandler(new StreamHandler(BASEDIR . '/storage/logs/' . $name . '.log'));
         return $this->log_arr[$name];
     }
 

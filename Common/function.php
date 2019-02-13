@@ -29,16 +29,15 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('log')) {
+if (!function_exists('logger')) {
 
     /**
      * @param $name
-     * @param string $level
      * @return \Common\Log
      * @throws Exception
      */
-    function log($name, $level = 'WARNING')
+    function logger($name)
     {
-        return new \Common\Log($name, $level);
+        return new \Common\Log($name);
     }
 }
