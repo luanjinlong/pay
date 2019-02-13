@@ -51,7 +51,7 @@ class PayData extends \Controller
             'callback_url' => '', //同步回掉地址
             'pay_money' => 'money',
             'encrypt_type' => 'md5', // 加密方式
-            'encrypt_data' => 'post,curl,money,encrypt', // 参与加密的字段，逗号分隔的字符串
+            'encrypt_data' => 'post,money,encrypt', // 参与加密的字段，逗号分隔的字符串
             'encrypt_field' => 'encrypt', // 加密字段配置
             'encrypt_rule' => 'k_sort', // 加密规则
             'encrypt_symbol' => '^', // 加密拼接字段

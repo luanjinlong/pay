@@ -44,6 +44,11 @@ class Pay extends \Controller
         'get', 'post'
     ];
 
+    /**
+     * 参与请求的字段
+     */
+    const REQUEST_FIELD = 'request_field';
+
     // 加密类型和配置
     const CONFIG_ENTRY_TYPE = [
         // md5 加密配置
@@ -85,8 +90,11 @@ class Pay extends \Controller
     {
         // 1.获取此支付对应的数据
         $this->field = $this->getPayDataClass()->getFieldBtPayName($payName);
+        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
         if (!$this->field) {
-            throw new \Exception($this->getPayDataClass()->getErrMessage());
+            $message = $this->getPayDataClass()->getErrMessage();
+            payLogger($this->field[self::PAY_NAME], $message, $this->field[self::PAY_NAME]);
+            throwError($message);
         }
     }
 
@@ -102,15 +110,9 @@ class Pay extends \Controller
         if (!$pay_data) {
             return false;
         }
-        // 获取请求方法
-
-        $validate = $this->validateRequestData();
-        if (!$validate) {
-            return false;
-        }
 
         // 请求支付
-        $pay = $this->request();
+        $pay = $this->request($pay_data);
 
         if (!$pay) {
             $this->payFail();
@@ -121,26 +123,14 @@ class Pay extends \Controller
     }
 
     /**
-     * @return Client
-     */
-    private function getGuzzle()
-    {
-        static $client;
-        if ($client) {
-            return $client;
-        }
-        return $client = new Client();
-    }
-
-    /**
      * 请求支付
      * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function request()
+    private function request($pay_data)
     {
         $client = $this->getGuzzle();
-        $response = $client->request(strtoupper($this->request_method), $this->getRequestUrl(), []);
+        $response = $client->request(strtoupper($this->request_method), $this->getRequestUrl(), $pay_data);
         if ($response->getStatusCode() == 200) {
             return true;
         } else {
@@ -162,58 +152,6 @@ class Pay extends \Controller
             throwError($message);
         }
         return $this->field[self::REQUEST_URL];
-    }
-
-    /**
-     * 验证请求信息
-     * @return bool
-     */
-    private function validateRequestData()
-    {
-//        // todo  测试环境下 默认数据就是数据库数据
-//        if (DEBUG) {
-//            $_POST = $this->field;
-//        }
-//
-//        $payData = [];
-//        $requestFields = explode(',', $this->field[self::REQUEST_FIELD]);
-//        foreach ($this->field as $field_name => $pay_name) {
-//            // post 请求的 name 还是数据库字段名
-//            if (DEBUG) {
-//                if (in_array($pay_name, $requestFields)) {
-//                    $payData[$pay_name] = $_POST[$field_name];
-//                }
-//            } else {
-//                if (isset($_POST[$field_name]) && in_array($pay_name, $requestFields)) {
-//                    $payData[$pay_name] = $_POST[$field_name];
-//                }
-//            }
-//        }
-//
-//        if (count($requestFields) != count($payData)) {
-//            $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
-//            return false;
-//        }
-        return true;
-    }
-
-
-    /**
-     * 请求方法是否符合需求
-     * @return bool
-     */
-    private function isSupportRequestMethod()
-    {
-        if (!$this->request_method) {
-            $this->errMessage = '请传入请求方法';
-            return false;
-        }
-
-        if (!in_array($this->request_method, self::REQUEST_METHOD)) {
-            $this->errMessage = '请求方法不符合需求';
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -240,12 +178,10 @@ class Pay extends \Controller
      */
     private function getPayData()
     {
-
         // 2.获取加密对应的加密类，去处理数据
-        if (!$this->encryptHandel) {
-            if (!$this->getHandelClassByEncrypt()) {
-                return false;
-            }
+        $encryptHandel = $this->getHandelClassByEncrypt();
+        if (!$encryptHandel) {
+            return false;
         }
 
         // 3. 获取在加密类中处理后的最终数据
@@ -265,6 +201,10 @@ class Pay extends \Controller
      */
     private function getHandelClassByEncrypt()
     {
+        if ($this->encryptHandel) {
+            return $this->encryptHandel;
+        }
+
         if (!$this->isSupportEncrypt()) {
             return false;
         }
@@ -322,5 +262,19 @@ class Pay extends \Controller
         }
         return $payData = new PayData();
     }
+
+
+    /**
+     * @return Client
+     */
+    private function getGuzzle()
+    {
+        static $client;
+        if ($client) {
+            return $client;
+        }
+        return $client = new Client();
+    }
+
 
 }
