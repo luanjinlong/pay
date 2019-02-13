@@ -124,6 +124,7 @@ class Pay extends \Controller
 
     /**
      * 请求支付
+     * @param $pay_data array
      * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
