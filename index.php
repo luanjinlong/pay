@@ -10,8 +10,8 @@ require 'bootstrap.php';
 $pay_name = 'test_pay';
 
 //// 获取支付处理类
-$class = new \Service\Pay($pay_name);
-$pay_result = $class->pay();
+$class = new \Service\Pay();
+$pay_result = $class->setPayName($pay_name)->pay();
 if (!$pay_result) {
     var_dump($class->getErrMessage());
 } else {

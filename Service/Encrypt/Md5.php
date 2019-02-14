@@ -62,6 +62,7 @@ class Md5 extends BaseEncrypt implements EncryptInterface
 
             }
         }
+        dd($payField);
         return $payField;
     }
 
