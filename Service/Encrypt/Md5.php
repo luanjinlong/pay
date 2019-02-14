@@ -40,7 +40,6 @@ class Md5 extends BaseEncrypt implements EncryptInterface
         if (!$payField) {
             return false;
         }
-
         // 获取加密字段
         $encrypt_field_str = $this->getEncryptField();
         if (!$encrypt_field_str) {
@@ -62,7 +61,6 @@ class Md5 extends BaseEncrypt implements EncryptInterface
 
             }
         }
-        dd($payField);
         return $payField;
     }
 

@@ -52,9 +52,11 @@ class Pay extends \Controller
             $this->errMessage = '请传入支付名';
             return false;
         }
+
         // 1.获取此支付对应的数据
         $this->field = $this->getPayDataClass()->getFieldByPayName($this->payName);
         //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
+
         if (!$this->field) {
             $message = $this->getPayDataClass()->getErrMessage();
             payLogger($this->field[PayData::PAY_NAME], $message, $this->field[PayData::PAY_NAME]);
@@ -135,15 +137,16 @@ class Pay extends \Controller
      */
     private function getPayData()
     {
+
         // 2.获取加密对应的加密类，去处理数据
         $encryptHandel = $this->getPayDataClass()->getHandelClassByEncrypt();
         if (!$encryptHandel) {
             return false;
         }
 
+
         // 3. 获取在加密类中处理后的最终数据
         $encryptPayData = $encryptHandel->setField($this->field)->getEncryptPayData();
-        dd($encryptPayData);
         if (!$encryptPayData) {
             $this->errMessage = $encryptHandel->getErrMessage();
             return false;

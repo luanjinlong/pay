@@ -153,13 +153,12 @@ class BaseEncrypt extends \Controller
                 ksort($encryptData);
                 break;
         }
-
         if (!$this->isSupportEncryptSymbol()) {
             return false;
         }
 
         // 将加密数据拼接成字符串
-        $encrypt_field_str = http_build_query($payField);
+        $encrypt_field_str = http_build_query($encryptData);
         // todo 不知道这种方式会不会有问题，http_build_query 函数默认是使用 & 符号拼接的 如果字符串中包含有这个函数就会出问题 其实也可以写函数处理这个拼接
         $encrypt_field_str = str_replace('&', $this->field[self::ENCRYPT_SYMBOL], $encrypt_field_str);
 
