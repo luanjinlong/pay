@@ -48,19 +48,9 @@ class Pay extends \Controller
      */
     public function pay()
     {
-        if (!$this->payName) {
-            $this->errMessage = '请传入支付名';
+        // 获取支付对应的配置
+        if (!$this->getField()) {
             return false;
-        }
-
-        // 1.获取此支付对应的数据
-        $this->field = $this->getPayDataClass()->getFieldByPayName($this->payName);
-        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
-
-        if (!$this->field) {
-            $message = $this->getPayDataClass()->getErrMessage();
-            payLogger($this->field[PayData::PAY_NAME], $message, $this->field[PayData::PAY_NAME]);
-            throwError($message);
         }
 
         //  获取请求的最终字段
@@ -96,6 +86,30 @@ class Pay extends \Controller
             $this->errMessage = $response->getBody()->getContents();
             return false;
         }
+    }
+
+    /**
+     * 获取支付名对应的数据库配置
+     * @return array|bool|string
+     * @throws \Exception
+     */
+    private function getField()
+    {
+        if (!$this->payName) {
+            $this->errMessage = '请传入支付名';
+            return false;
+        }
+
+        // 1.获取此支付对应的数据
+        $this->field = $this->getPayDataClass()->getFieldByPayName($this->payName);
+        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
+
+        if (!$this->field) {
+            $message = $this->getPayDataClass()->getErrMessage();
+            payLogger($this->field[PayData::PAY_NAME], $message, $this->field[PayData::PAY_NAME]);
+            throwError($message);
+        }
+        return $this->field;
     }
 
     /**
