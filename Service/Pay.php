@@ -78,8 +78,24 @@ class Pay extends \Controller
      */
     private function request($pay_data)
     {
+        $request_method = strtoupper($this->getPayDataClass()->getRequestMethod());
+        if ($pay_data) {
+            if ($request_method == 'POST') {
+                $pay_data = [
+                    'form_params' => $pay_data, // post 请求的参数需要以 form_params 为键
+                ];
+            } elseif ($request_method == 'GET') {
+                $pay_data = [
+                    'query' => http_build_query($pay_data), // post 请求的参数需要以 form_params 为键
+                ];
+            } else {
+                $this->errMessage = '请传入请求方式';
+                return false;
+            }
+        }
+
         $client = $this->getGuzzle();
-        $response = $client->request(strtoupper($this->getPayDataClass()->getRequestMethod()), $this->getRequestUrl(), $pay_data);
+        $response = $client->request($request_method, $this->getRequestUrl(), $pay_data);
         if ($response->getStatusCode() == 200) {
             return true;
         } else {

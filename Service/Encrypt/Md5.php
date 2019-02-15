@@ -58,7 +58,6 @@ class Md5 extends BaseEncrypt implements EncryptInterface
                 case 'k_sort': // 按照键升序
                     ksort($payField);
                     break;
-
             }
         }
         return $payField;
