@@ -64,6 +64,8 @@ class Pay extends \Controller
 
         if (!$pay) {
             $this->payFail();
+            payLogger($this->field[PayData::PAY_NAME], $this->getErrMessage(), $this->field[PayData::PAY_NAME]);
+            throwError($this->getErrMessage());
             return false;
         }
         $this->paySuccess();
