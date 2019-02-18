@@ -15,8 +15,8 @@ $pay_result = $class->setPayName($pay_name)->pay();
 if (!$pay_result) {
     payLogger($this->field[PayData::PAY_NAME], $this->getErrMessage(), $this->field[PayData::PAY_NAME]);
     throwError($this->getErrMessage());
-    var_dump($class->getErrMessage());
+    dd($class->getErrMessage());
 } else {
-    var_dump($pay_result);
+    dd($pay_result);
 }
 
