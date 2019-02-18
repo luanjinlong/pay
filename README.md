@@ -11,5 +11,11 @@
 
 ### 文件介绍
 - index.php 是入口文件 假设使用的支付名是 test_pay
-- Pay.php 算是支付中心的入口文件
+- Service/Pay.php 算是支付中心的入口文件
 - EncryptInterface.php 是加密类处理的接口
+- Service/HttpRequest.php GuzzleHttp 的请求类
+- Repository/PayData.php  是根绝支付名，从数据库中获取相应的支付配置数据
+- Config 配置文件的目录
+- Common 公共资源(类或文件)
+- storage 数据存储
+- storage/logs 日志文件
