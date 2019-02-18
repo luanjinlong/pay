@@ -114,7 +114,7 @@ class PayData extends \Controller
      */
     public function getRequestMethod()
     {
-        return $this->field[self::REQUEST_METHOD];
+        return strtoupper($this->field[self::REQUEST_METHOD]);
     }
 
     /**

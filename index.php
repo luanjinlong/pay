@@ -13,6 +13,8 @@ $pay_name = 'test_pay';
 $class = new \Service\Pay();
 $pay_result = $class->setPayName($pay_name)->pay();
 if (!$pay_result) {
+    payLogger($this->field[PayData::PAY_NAME], $this->getErrMessage(), $this->field[PayData::PAY_NAME]);
+    throwError($this->getErrMessage());
     var_dump($class->getErrMessage());
 } else {
     var_dump($pay_result);

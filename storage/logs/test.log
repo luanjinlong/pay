@@ -27,3 +27,6 @@
 [2019-02-13 09:20:37] test.DEBUG: 没有配置支付名 {"time":"2019-02-13 09:20:37","pay_name":"test","err_message":[]} []
 [2019-02-13 09:20:52] test.DEBUG: 没有配置支付名 {"time":"2019-02-13 09:20:52","pay_name":"test","err_message":[]} []
 [2019-02-13 09:21:13] test.DEBUG: 没有配置支付名 {"time":"2019-02-13 09:21:13","pay_name":"test","err_message":[]} []
+[2019-02-18 04:01:06] test.DEBUG: 没有填写错误信息 {"time":"2019-02-18 04:01:06","pay_name":"test","err_message":[]} []
+[2019-02-18 04:01:11] test.DEBUG: 没有填写错误信息 {"time":"2019-02-18 04:01:11","pay_name":"test","err_message":[]} []
+[2019-02-18 04:01:25] test.DEBUG: 没有填写错误信息 {"time":"2019-02-18 04:01:25","pay_name":"test","err_message":[]} []
