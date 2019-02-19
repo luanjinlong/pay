@@ -2,6 +2,8 @@
 
 namespace Service\Encrypt;
 
+use mysql_xdevapi\Exception;
+
 /**
  * md5 加密方式的请求处理
  * Class Md5
@@ -118,7 +120,6 @@ class BaseEncrypt extends \Controller
                 }
             }
         }
-
         if (count($requestFields) != count($payData)) {
             $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
             return false;

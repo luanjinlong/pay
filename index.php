@@ -18,5 +18,5 @@ if (!$pay_result) {
     dd($pay_result);
 }
 
-// 还原成之前的异常处理程序
-restore_exception_handler();
+//// 还原成之前的异常处理程序
+//restore_exception_handler();

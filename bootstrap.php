@@ -3,7 +3,7 @@
 /**
  *  这个页面其实也相当于是路由走到了控制器的页面
  */
-define('DEBUG', true); // 调试模式
+define('DEBUG', false); // 调试模式
 error_reporting(0);
 
 // 引入第三方组件
