@@ -3,7 +3,7 @@
 namespace Repository;
 
 /**
- * 从数据库获取支付数据的类
+ * 支付名对应的数据仓库
  * Class PayData
  * @package Repository
  */
@@ -44,6 +44,11 @@ class PayData extends \Controller
      * 参与请求的字段
      */
     const REQUEST_FIELD = 'request_field';
+
+    /**
+     * 订单号字段
+     */
+    const ORDER_NUM = 'order_num';
 
     /**
      * 数据库字段

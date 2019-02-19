@@ -3,8 +3,9 @@
 namespace Service\Encrypt;
 
 /**
- * md5 加密方式的请求处理
- * Class Md5
+ * 工厂模式 获取对应的加密类
+ * Class Driver
+ * @package Service\Encrypt
  */
 class Driver extends \Controller
 {

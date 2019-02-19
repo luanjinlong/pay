@@ -2,6 +2,7 @@
 
 namespace Service;
 
+use Repository\PayOrder;
 use Repository\PayData;
 use Service\Encrypt\Driver;
 
@@ -21,6 +22,12 @@ class Pay extends \Controller
      * @var string 支付名
      */
     private $payName;
+
+    /**
+     * 订单号
+     * @var int
+     */
+    private $order_num;
 
     /**
      * Pay constructor.
@@ -48,13 +55,13 @@ class Pay extends \Controller
      */
     public function pay()
     {
-        // 获取支付对应的配置
+        //1. 获取支付对应的配置
         if (!$this->getField()) {
             return false;
         }
 
         // 2.获取加密方式对应的加密处理类
-        $encryptHandel = $this->getEncryptClass()->getHandleByEncrypt($this->getPayDataClass()->getEntryType());
+        $encryptHandel = $this->getEncryptClass()->getHandleByEncrypt($this->getPayDataRepository()->getEntryType());
         if (!$encryptHandel) {
             $this->errMessage = $this->getEncryptClass()->getErrMessage();
             return false;
@@ -67,13 +74,21 @@ class Pay extends \Controller
             return false;
         }
 
+        // 4. 支付之前创建订单
+        $createOrder = $this->getPayOrderRepository()->createOrder($encryptPayData);
+        if (!$createOrder) {
+            $this->errMessage = $this->getPayOrderRepository()->getErrMessage();
+            return false;
+        }
+
+        //  订单号
+        $this->order_num = $encryptPayData[PayData::ORDER_NUM];
         // 请求支付
-        $pay = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataClass()->getRequestUrl(), $this->getPayDataClass()->getRequestMethod());
+        $pay = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataRepository()->getRequestUrl(), $this->getPayDataRepository()->getRequestMethod());
         if (!$pay) {
             $this->payFail();
             return false;
         }
-
         $this->paySuccess();
         return true;
     }
@@ -91,10 +106,10 @@ class Pay extends \Controller
         }
 
         // 1.获取此支付对应的数据
-        $this->field = $this->getPayDataClass()->getFieldByPayName($this->payName);
+        $this->field = $this->getPayDataRepository()->getFieldByPayName($this->payName);
         //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
         if (!$this->field) {
-            $this->errMessage = $this->getPayDataClass()->getErrMessage();
+            $this->errMessage = $this->getPayDataRepository()->getErrMessage();
             return false;
         }
         return $this->field;
@@ -106,6 +121,7 @@ class Pay extends \Controller
      */
     private function payFail()
     {
+        $this->getPayOrderRepository()->updateToFailByOrder($this->order_num);
         return true;
     }
 
@@ -115,14 +131,14 @@ class Pay extends \Controller
      */
     private function paySuccess()
     {
+        $this->getPayOrderRepository()->updateToSuccessByOrder($this->order_num);
         return true;
     }
 
     /**
-     * 获取支付数据类
      * @return PayData
      */
-    private function getPayDataClass()
+    private function getPayDataRepository()
     {
         static $payData;
         return isset($payData) ? $payData : $payData = new PayData();
@@ -148,5 +164,14 @@ class Pay extends \Controller
         return isset($encrypt) ? $encrypt : $encrypt = new Driver();
     }
 
+    /**
+     * 获取订单仓库
+     * @return PayOrder
+     */
+    private function getPayOrderRepository()
+    {
+        static $repository;
+        return isset($repository) ? $repository : $repository = new PayOrder();
+    }
 
 }

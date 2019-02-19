@@ -54,6 +54,21 @@ class BaseEncrypt extends \Controller
     }
 
     /**
+     * 获取订单号
+     * @return string
+     */
+    protected function getOrderNum()
+    {
+        $order = date('YmdHis') . mt_rand(1000, 9999);
+        // todo  查询订单号是否存在，存在则再换一个
+        $sql = false;
+        if (!$sql) {
+            return $order;
+        }
+        $this->getOrderNum();
+    }
+
+    /**
      * todo  公共的数据在这里验证，但是不是必须的数据，就不要验证了
      * 验证数据，比如金额是否填写，金额有没有限制额度
      * 必要的其他字段有没有填写
@@ -90,6 +105,7 @@ class BaseEncrypt extends \Controller
     }
 
     /**
+     * todo 最后别忘了订单号是单独生成处理的
      * 获取请求支付的键值对数据  原本是表字段对应的值，这一步整理成表字段值对应的POST值，因为表字段值才是第三方的请求字段
      * @return array|boolean
      */
@@ -101,7 +117,7 @@ class BaseEncrypt extends \Controller
         }
         // todo  测试环境下 默认数据就是数据库数据
         if (DEBUG) {
-            $_POST = $this->field;
+            $_POST = array_merge($this->field, ['order_num' => $this->getOrderNum()]);
         }
 
         $payData = [];
@@ -122,7 +138,7 @@ class BaseEncrypt extends \Controller
             $this->errMessage = '请求字段赋值不整完，参与请求的字段有' . $this->field[self::REQUEST_FIELD] . '赋值的字段有:' . implode(',', $payData);
             return false;
         }
-        return $payData;
+        return array_merge($payData, ['order_num' => $this->getOrderNum()]);
     }
 
     /**
