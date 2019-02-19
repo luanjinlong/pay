@@ -34,7 +34,7 @@ class Rsa extends BaseEncrypt implements EncryptInterface
      */
     private function getRequestDataBySort()
     {
-        return [];
+        return [1];
     }
 
 }

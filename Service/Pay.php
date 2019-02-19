@@ -3,6 +3,7 @@
 namespace Service;
 
 use Repository\PayData;
+use Service\Encrypt\Driver;
 
 /**
  * 处理支付 这个相当于是 service 层  处理业务逻辑
@@ -52,14 +53,22 @@ class Pay extends \Controller
             return false;
         }
 
-        //  获取请求的最终字段
-        $pay_data = $this->getPayData();
-        if (!$pay_data) {
+        // 2.获取加密方式对应的加密处理类
+        $encryptHandel = $this->getEncryptClass()->getHandleByEncrypt($this->getPayDataClass()->getEntryType());
+        if (!$encryptHandel) {
+            $this->errMessage = $this->getEncryptClass()->getErrMessage();
+            return false;
+        }
+
+        // 3. 获取在加密类中处理后的最终数据
+        $encryptPayData = $encryptHandel->setField($this->field)->getEncryptPayData();
+        if (!$encryptPayData) {
+            $this->errMessage = $encryptHandel->getErrMessage();
             return false;
         }
 
         // 请求支付
-        $pay = $this->getHttpRequestClass()->request($pay_data, $this->getRequestUrl(), $this->getPayDataClass()->getRequestMethod());
+        $pay = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataClass()->getRequestUrl(), $this->getPayDataClass()->getRequestMethod());
         if (!$pay) {
             $this->payFail();
             return false;
@@ -84,21 +93,11 @@ class Pay extends \Controller
         // 1.获取此支付对应的数据
         $this->field = $this->getPayDataClass()->getFieldByPayName($this->payName);
         //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
-
         if (!$this->field) {
             $this->errMessage = $this->getPayDataClass()->getErrMessage();
             return false;
         }
         return $this->field;
-    }
-
-    /**
-     *  获取请求的 url
-     * @return string
-     */
-    private function getRequestUrl()
-    {
-        return $this->field[PayData::REQUEST_URL];
     }
 
     /**
@@ -120,31 +119,6 @@ class Pay extends \Controller
     }
 
     /**
-     * 获取请求支付的最终数据
-     * @return bool|array
-     */
-    private function getPayData()
-    {
-        // 2.获取加密对应的加密类，去处理数据
-        $encryptHandel = $this->getPayDataClass()->getHandelClassByEncrypt();
-        if (!$encryptHandel) {
-            return false;
-        }
-
-
-        // 3. 获取在加密类中处理后的最终数据
-        $encryptPayData = $encryptHandel->setField($this->field)->getEncryptPayData();
-        if (!$encryptPayData) {
-            $this->errMessage = $encryptHandel->getErrMessage();
-            return false;
-        }
-
-        // todo 请求数据sql入库
-        return $encryptPayData;
-    }
-
-
-    /**
      * 获取支付数据类
      * @return PayData
      */
@@ -162,6 +136,16 @@ class Pay extends \Controller
     {
         static $request;
         return isset($request) ? $request : $request = new HttpRequest();
+    }
+
+    /**
+     * 获取加密方式对应的类
+     * @return Driver
+     */
+    private function getEncryptClass()
+    {
+        static $encrypt;
+        return isset($encrypt) ? $encrypt : $encrypt = new Driver();
     }
 
 
