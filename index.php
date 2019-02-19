@@ -13,10 +13,10 @@ $pay_name = 'test_pay';
 $class = new \Service\Pay();
 $pay_result = $class->setPayName($pay_name)->pay();
 if (!$pay_result) {
-    payLogger($this->field[PayData::PAY_NAME], $this->getErrMessage(), $this->field[PayData::PAY_NAME]);
-    throwError($this->getErrMessage());
     dd($class->getErrMessage());
 } else {
     dd($pay_result);
 }
 
+// 还原成之前的异常处理程序
+restore_exception_handler();

@@ -12,8 +12,8 @@ if (!function_exists('config')) {
     {
         if (strpos($key, '.') === false) {
             // 直接返回整个文件的配置
-            $cofnig = new \Common\Config($key);
-            return $cofnig->getConfigs($key);
+            $config = new \Common\Config($key);
+            return $config->getConfigs($key);
         }
 
         $arr = explode('.', $key);
@@ -42,25 +42,6 @@ if (!function_exists('logger')) {
     }
 }
 
-if (!function_exists('payLogger')) {
-
-    /**
-     * 支付过程出现的报错
-     * @param $name
-     * @param $message
-     * @param $pay_name
-     * @param $err_message
-     * @throws Exception
-     */
-    function payLogger($name, $message, $pay_name, $err_message = [])
-    {
-        return logger($name)->debug($message, [
-            'time' => date('Y-m-d H:i:s'),
-            'pay_name' => $pay_name,
-            'err_message' => $err_message
-        ]);
-    }
-}
 
 if (!function_exists('throwError')) {
     /**
@@ -72,6 +53,6 @@ if (!function_exists('throwError')) {
         if (DEBUG) {
             throw new Exception($message);
         }
-        throw new Exception('网络异常，请联系客服,异常代码' . time());
+        throw new Exception('网络异常，请联系客服');
     }
 }

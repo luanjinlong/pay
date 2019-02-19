@@ -88,7 +88,6 @@ class Pay extends \Controller
 
         if (!$this->field) {
             $message = $this->getPayDataClass()->getErrMessage();
-            payLogger($this->field[PayData::PAY_NAME], $message, $this->field[PayData::PAY_NAME]);
             throwError($message);
         }
         return $this->field;
@@ -103,7 +102,6 @@ class Pay extends \Controller
     {
         if (!$this->field[PayData::REQUEST_URL]) {
             $message = '没有配置支付名';
-            payLogger($this->field[PayData::PAY_NAME], $message, $this->field[PayData::PAY_NAME]);
             throwError($message);
         }
         return $this->field[PayData::REQUEST_URL];
