@@ -2,8 +2,6 @@
 
 namespace Service\Encrypt;
 
-use mysql_xdevapi\Exception;
-
 /**
  * md5 加密方式的请求处理
  * Class Md5
