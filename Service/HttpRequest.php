@@ -48,9 +48,6 @@ class HttpRequest extends \Controller
             }
         }
 
-        // 更改订单号为锁定中
-        $this->getPayOrderRepository()->updateToLockByOrder($pay_data[PayData::ORDER_NUM]);
-
         $client = $this->getGuzzle();
         $response = $client->request($request_method, $url, $pay_data);
         if ($response->getStatusCode() == 200) {
@@ -59,17 +56,6 @@ class HttpRequest extends \Controller
             $this->errMessage = $response->getBody()->getContents();
             return false;
         }
-    }
-
-
-    /**
-     * 获取订单仓库
-     * @return PayOrder
-     */
-    private function getPayOrderRepository()
-    {
-        static $repository;
-        return isset($repository) ? $repository : $repository = new PayOrder();
     }
 
 }

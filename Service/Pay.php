@@ -84,7 +84,31 @@ class Pay extends \Controller
         //  订单号
         $this->order_num = $encryptPayData[PayData::ORDER_NUM];
         // 请求支付
-        $pay = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataRepository()->getRequestUrl(), $this->getPayDataRepository()->getRequestMethod());
+        $payResult = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataRepository()->getRequestUrl(), $this->getPayDataRepository()->getRequestMethod());
+        //  z这个只是请求是否成功，回掉才是是否支付成功
+        if (!$payResult) {
+            return false;
+        }
+
+        // 更改订单号为锁定中
+        $this->getPayOrderRepository()->updateToLockByOrder($this->order_num);
+
+        return true;
+    }
+
+    /**
+     * 支付回掉处理
+     * @return bool
+     */
+    public function callBack()
+    {
+        //1. 获取支付对应的配置
+        if (!$this->getField()) {
+            return false;
+        }
+
+        $pay = 1;
+        //  z这个只是请求是否成功，回掉才是是否支付成功
         if (!$pay) {
             $this->payFail();
             return false;
