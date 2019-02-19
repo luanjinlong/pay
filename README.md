@@ -19,4 +19,4 @@
 - Common 公共资源(类或文件)
 - storage 数据存储
 - storage/logs 日志文件
-- 如果下载后没有 storage/logs 文件夹，请自己创建
+- 如果下载后没有 storage/logs 文件夹，请自己创建.
