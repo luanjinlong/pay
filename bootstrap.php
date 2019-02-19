@@ -38,7 +38,7 @@ if (!DEBUG) {
                 'track' => $exception->getTraceAsString(),
             ]);
         } else {
-            dd($exception->getMessage());
+            dd('网络异常，请联系客服');
         }
     });
 }

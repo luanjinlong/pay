@@ -2,7 +2,7 @@
 
 define('BASEDIR', __DIR__); // 项目根路径
 
-require 'bootstrap.php';
+require_once './bootstrap.php';
 
 /**
  *  使用的支付名

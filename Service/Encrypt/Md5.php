@@ -11,7 +11,7 @@ class Md5 extends BaseEncrypt implements EncryptInterface
 
     /**
      * 获取加密处理后的数据
-     * @return bool|string
+     * @return array|bool
      */
     public function getEncryptPayData()
     {

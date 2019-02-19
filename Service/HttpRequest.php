@@ -23,7 +23,7 @@ class HttpRequest extends \Controller
 
     /**
      * 请求支付
-     * @param $pay_data array
+     * @param $pay_data
      * @param $url
      * @param $request_method
      * @return bool

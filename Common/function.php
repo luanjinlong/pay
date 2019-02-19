@@ -42,17 +42,3 @@ if (!function_exists('logger')) {
     }
 }
 
-
-if (!function_exists('throwError')) {
-    /**
-     * @param $message
-     * @throws Exception
-     */
-    function throwError($message)
-    {
-        if (DEBUG) {
-            throw new Exception($message);
-        }
-        throw new Exception('网络异常，请联系客服');
-    }
-}

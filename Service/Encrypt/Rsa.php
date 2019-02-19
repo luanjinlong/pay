@@ -10,7 +10,7 @@ class Rsa extends BaseEncrypt implements EncryptInterface
 {
     /**
      * 获取加密处理后的数据
-     * @return bool|string
+     * @return bool|array
      */
     public function getEncryptPayData()
     {
@@ -27,6 +27,14 @@ class Rsa extends BaseEncrypt implements EncryptInterface
         }
 
         return $requestData;
+    }
+
+    /**
+     * @return array
+     */
+    private function getRequestDataBySort()
+    {
+        return [];
     }
 
 }

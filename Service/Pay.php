@@ -43,7 +43,7 @@ class Pay extends \Controller
     /**
      * 支付中心
      * @return bool
-     * @throws \GuzzleHttp\Exception\GuzzleException | Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function pay()
     {
@@ -60,11 +60,11 @@ class Pay extends \Controller
 
         // 请求支付
         $pay = $this->getHttpRequestClass()->request($pay_data, $this->getRequestUrl(), $this->getPayDataClass()->getRequestMethod());
-
         if (!$pay) {
             $this->payFail();
             return false;
         }
+
         $this->paySuccess();
         return true;
     }
@@ -73,7 +73,6 @@ class Pay extends \Controller
     /**
      * 获取支付名对应的数据库配置
      * @return array|bool|string
-     * @throws \Exception
      */
     private function getField()
     {
@@ -87,8 +86,8 @@ class Pay extends \Controller
         //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
 
         if (!$this->field) {
-            $message = $this->getPayDataClass()->getErrMessage();
-            throwError($message);
+            $this->errMessage = $this->getPayDataClass()->getErrMessage();
+            return false;
         }
         return $this->field;
     }
@@ -96,14 +95,9 @@ class Pay extends \Controller
     /**
      *  获取请求的 url
      * @return string
-     * @throws \Exception
      */
     private function getRequestUrl()
     {
-        if (!$this->field[PayData::REQUEST_URL]) {
-            $message = '没有配置支付名';
-            throwError($message);
-        }
         return $this->field[PayData::REQUEST_URL];
     }
 
@@ -127,11 +121,10 @@ class Pay extends \Controller
 
     /**
      * 获取请求支付的最终数据
-     * @return bool|string
+     * @return bool|array
      */
     private function getPayData()
     {
-
         // 2.获取加密对应的加密类，去处理数据
         $encryptHandel = $this->getPayDataClass()->getHandelClassByEncrypt();
         if (!$encryptHandel) {
