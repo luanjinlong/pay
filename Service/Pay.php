@@ -14,49 +14,24 @@ class Pay extends \Controller
 {
 
     /**
-     * @var string 支付对应的字段名
-     */
-    private $field;
-
-    /**
-     * @var string 支付名
-     */
-    private $payName;
-
-    /**
      * 订单号
      * @var int
      */
     private $order_num;
 
     /**
-     * Pay constructor.
-     */
-    public function __construct()
-    {
-
-    }
-
-    /**
-     * 设置支付名
-     * @param $payName
-     * @return $this
-     */
-    public function setPayName($payName)
-    {
-        $this->payName = $payName;
-        return $this;
-    }
-
-    /**
      * 支付中心
+     * @param $payName string  支付名
      * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function pay()
+    public function pay($payName)
     {
-        //1. 获取支付对应的配置
-        if (!$this->getField()) {
+        // 1.获取此支付对应的数据
+        $field = $this->getPayDataRepository()->getFieldByPayName($payName);
+        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
+        if (!$field) {
+            $this->errMessage = $this->getPayDataRepository()->getErrMessage();
             return false;
         }
 
@@ -68,7 +43,7 @@ class Pay extends \Controller
         }
 
         // 3. 获取在加密类中处理后的最终数据
-        $encryptPayData = $encryptHandel->setField($this->field)->getEncryptPayData();
+        $encryptPayData = $encryptHandel->setField($field)->getEncryptPayData();
         if (!$encryptPayData) {
             $this->errMessage = $encryptHandel->getErrMessage();
             return false;
@@ -81,12 +56,15 @@ class Pay extends \Controller
             return false;
         }
 
-        //  订单号
+        //  订单号赋值
         $this->order_num = $encryptPayData[PayData::ORDER_NUM];
-        // 请求支付
+        // 5.请求支付
         $payResult = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataRepository()->getRequestUrl(), $this->getPayDataRepository()->getRequestMethod());
         //  z这个只是请求是否成功，回掉才是是否支付成功
         if (!$payResult) {
+            $this->errMessage = $this->getHttpRequestClass()->getErrMessage();
+            //  请求支付，但是请求出现问题
+            $this->getPayOrderRepository()->updateToRequestFailByOrder($this->order_num);
             return false;
         }
 
@@ -98,15 +76,18 @@ class Pay extends \Controller
 
     /**
      * todo 支付回掉处理
+     * @param $payName string  支付名
      * @return bool
      */
-    public function callBack()
+    public function callBack($payName)
     {
-        //1. 获取支付对应的配置
-        if (!$this->getField()) {
+        // 1.获取此支付对应的数据
+        $field = $this->getPayDataRepository()->getFieldByPayName($payName);
+        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
+        if (!$field) {
+            $this->errMessage = $this->getPayDataRepository()->getErrMessage();
             return false;
         }
-
         $pay = 1;
         //  z这个只是请求是否成功，回掉才是是否支付成功
         if (!$pay) {
@@ -115,28 +96,6 @@ class Pay extends \Controller
         }
         $this->paySuccess();
         return true;
-    }
-
-
-    /**
-     * 获取支付名对应的数据库配置
-     * @return array|bool|string
-     */
-    private function getField()
-    {
-        if (!$this->payName) {
-            $this->errMessage = '请传入支付名';
-            return false;
-        }
-
-        // 1.获取此支付对应的数据
-        $this->field = $this->getPayDataRepository()->getFieldByPayName($this->payName);
-        //  如果这个支付没有数据库数据，则无法进行人恶化操作，此处抛出异常
-        if (!$this->field) {
-            $this->errMessage = $this->getPayDataRepository()->getErrMessage();
-            return false;
-        }
-        return $this->field;
     }
 
     /**

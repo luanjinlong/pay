@@ -10,7 +10,7 @@ require_once './bootstrap.php';
 $pay_name = 'test_pay';
 //  异步回掉的处理
 $class = new \Service\Pay();
-$pay_result = $class->setPayName($pay_name)->callBack();
+$pay_result = $class->callBack($pay_name);
 if (!$pay_result) {
     dd($class->getErrMessage());
 } else {

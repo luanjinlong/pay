@@ -9,19 +9,21 @@ namespace Repository;
  */
 class PayOrder extends \Controller
 {
-    const PAY_WAIT = -1;
-    const PAY_LOCK = -2;
-    const PAY_FAIL = -3;
-    const PAY_SUCCESS = 1;
+    const ORDER_CREATE = -1;
+    const ORDER_LOCK = -2;
+    const ORDER_REQUEST_FAIL = -3;
+    const ORDER_FAIL = -4;
+    const ORDER_SUCCESS = 1;
 
     /**
      *  订单状态对应的意义
      */
-    const ORDER_STATUS = [
-        self::PAY_WAIT => '订单已经创建,等待支付',
-        self::PAY_LOCK => '订单锁定中(正在支付)',
-        self::PAY_FAIL => '订单已请求支付，但支付失败',
-        self::PAY_SUCCESS => '订单支付成功',
+    const STATUS_ORDER = [
+        self::ORDER_CREATE => '新订单', // 支付之前创建订单
+        self::ORDER_LOCK => '锁定中(正在支付)', // 发送请求成功，等待回掉
+        self::ORDER_REQUEST_FAIL => '请求支付失败', // 请求支付失败，request 请求出现问题
+        self::ORDER_FAIL => '支付失败', // 回掉支付失败
+        self::ORDER_SUCCESS => '订单支付成功', // 回掉支付成功
     ];
 
     /**
@@ -31,10 +33,10 @@ class PayOrder extends \Controller
      */
     public function getStatusNameByStatus($status)
     {
-        if (!array_key_exists($status, self::ORDER_STATUS)) {
+        if (!array_key_exists($status, self::STATUS_ORDER)) {
             return '未知状态';
         }
-        return self::ORDER_STATUS[$status];
+        return self::STATUS_ORDER[$status];
     }
 
     /**
@@ -56,18 +58,29 @@ class PayOrder extends \Controller
     public function createOrder($arr)
     {
         $order = $arr[PayData::ORDER_NUM];
-        //  todo  订单入库
+        //  todo  订单入库 self::ORDER_CREATE
         return true;
     }
 
     /**
-     * 根据订单号更新订单状态为锁定
+     * 根据订单号更新订单状态为锁定 已经发送请求成功  等待回掉
      * @param $order_num int
      * @return bool
      */
     public function updateToLockByOrder($order_num)
     {
         // todo sql 更新状态为锁定
+        return true;
+    }
+
+    /**
+     * 订单号更新为请求支付失败
+     * @param $order_num int
+     * @return bool
+     */
+    public function updateToRequestFailByOrder($order_num)
+    {
+        // todo sql 更新状态为锁定  self::ORDER_REQUEST_FAIL
         return true;
     }
 

@@ -10,7 +10,7 @@ require_once './bootstrap.php';
 $pay_name = 'test_pay';
 //// 获取支付处理类
 $class = new \Service\Pay();
-$pay_result = $class->setPayName($pay_name)->pay();
+$pay_result = $class->pay($pay_name);
 if (!$pay_result) {
     dd($class->getErrMessage());
 } else {
