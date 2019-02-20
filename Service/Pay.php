@@ -2,8 +2,8 @@
 
 namespace Service;
 
-use Repository\PayOrder;
-use Repository\PayData;
+use Repository\PayOrderRepository;
+use Repository\PayDataRepository;
 use Service\Encrypt\Driver;
 
 /**
@@ -57,7 +57,7 @@ class Pay extends \Controller
         }
 
         //  订单号赋值
-        $this->order_num = $encryptPayData[PayData::ORDER_NUM];
+        $this->order_num = $encryptPayData[PayDataRepository::ORDER_NUM];
         // 5.请求支付
         $payResult = $this->getHttpRequestClass()->request($encryptPayData, $this->getPayDataRepository()->getRequestUrl(), $this->getPayDataRepository()->getRequestMethod());
         //  z这个只是请求是否成功，回掉才是是否支付成功
@@ -119,12 +119,12 @@ class Pay extends \Controller
     }
 
     /**
-     * @return PayData
+     * @return PayDataRepository
      */
     private function getPayDataRepository()
     {
         static $payData;
-        return isset($payData) ? $payData : $payData = new PayData();
+        return isset($payData) ? $payData : $payData = new PayDataRepository();
     }
 
     /**
@@ -149,12 +149,12 @@ class Pay extends \Controller
 
     /**
      * 获取订单仓库
-     * @return PayOrder
+     * @return PayOrderRepository
      */
     private function getPayOrderRepository()
     {
         static $repository;
-        return isset($repository) ? $repository : $repository = new PayOrder();
+        return isset($repository) ? $repository : $repository = new PayOrderRepository();
     }
 
 }

@@ -4,10 +4,10 @@ namespace Repository;
 
 /**
  * 支付订单对应的数据处理
- * Class PayOrder
+ * Class PayOrderRepository
  * @package Repository
  */
-class PayOrder extends \Controller
+class PayOrderRepository extends \Controller
 {
     const ORDER_CREATE = -1;
     const ORDER_LOCK = -2;
@@ -47,7 +47,7 @@ class PayOrder extends \Controller
     public function getStatusNameByOrderNum($order)
     {
         $sql = [];
-        return $this->getStatusNameByStatus($sql[PayData::ORDER_NUM]);
+        return $this->getStatusNameByStatus($sql[PayDataRepository::ORDER_NUM]);
     }
 
     /**
@@ -57,7 +57,7 @@ class PayOrder extends \Controller
      */
     public function createOrder($arr)
     {
-        $order = $arr[PayData::ORDER_NUM];
+        $order = $arr[PayDataRepository::ORDER_NUM];
         //  todo  订单入库 self::ORDER_CREATE
         return true;
     }

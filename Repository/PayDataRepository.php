@@ -4,10 +4,10 @@ namespace Repository;
 
 /**
  * 支付名对应的数据仓库
- * Class PayData
+ * Class PayDataRepository
  * @package Repository
  */
-class PayData extends \Controller
+class PayDataRepository extends \Controller
 {
 
     /**

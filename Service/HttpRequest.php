@@ -3,8 +3,6 @@
 namespace Service;
 
 use GuzzleHttp\Client;
-use Repository\PayData;
-use Repository\PayOrder;
 
 /**
  * 请求类
