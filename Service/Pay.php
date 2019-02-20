@@ -124,27 +124,7 @@ class Pay extends \Controller
     private function getPayDataRepository()
     {
         static $payData;
-        return isset($payData) ? $payData : $payData = new PayDataRepository();
-    }
-
-    /**
-     * 获取 Request 请求类
-     * @return HttpRequest
-     */
-    private function getHttpRequestClass()
-    {
-        static $request;
-        return isset($request) ? $request : $request = new HttpRequest();
-    }
-
-    /**
-     * 获取加密方式对应的类
-     * @return Driver
-     */
-    private function getEncryptClass()
-    {
-        static $encrypt;
-        return isset($encrypt) ? $encrypt : $encrypt = new Driver();
+        return $payData ? $payData : $payData = new PayDataRepository();
     }
 
     /**
@@ -154,7 +134,27 @@ class Pay extends \Controller
     private function getPayOrderRepository()
     {
         static $repository;
-        return isset($repository) ? $repository : $repository = new PayOrderRepository();
+        return $repository ? $repository : $repository = new PayOrderRepository();
+    }
+
+    /**
+     * 获取 Request 请求类
+     * @return HttpRequest
+     */
+    private function getHttpRequestClass()
+    {
+        static $request;
+        return $request ? $request : $request = new HttpRequest();
+    }
+
+    /**
+     * 获取加密方式对应的类
+     * @return Driver
+     */
+    private function getEncryptClass()
+    {
+        static $encrypt;
+        return $encrypt ? $encrypt : $encrypt = new Driver();
     }
 
 }
